@@ -1,0 +1,13 @@
+{
+    "name": "dekode/insightly-cli",
+    "type": "project",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "authors": [
+        {
+            "name": "Rasmus Rimestad",
+            "email": "rasmus@dekode.no"
+        }
+    ]
+}
