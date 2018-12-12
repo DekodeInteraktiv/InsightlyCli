@@ -62,7 +62,7 @@ class InsightlyService {
 		foreach ( $projects as $index => $project ) {
 
 			similar_text( $name, strtolower( $project->get_name() ), $similarity );
-			if ( $similarity > 80 ) {
+			if ( $similarity > 50 ) {
 				$similarities[ $index ] = $similarity;
 			}
 		}

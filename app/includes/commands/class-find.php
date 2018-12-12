@@ -49,14 +49,18 @@ class Find extends Command {
 		if ( ! $project ) {
 			$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 
-			print ( "\n\e[31mWe could not find that project.\n\n" );
-			print( "\e[39m" . 'Did you mean one of these projects?' . "\n\n" );
+			print ( "\n\e[31mWe could not find that project." );
 
-			foreach ( $similar_projects as $project ) {
-				print( $project->get_name() . "\n" );
+			if ( is_array( $similar_projects ) && count( $similar_projects ) ) {
+				print( " Showing '" . $similar_projects[0]->get_name() . "' instead." );
+				$project = $similar_projects[0];
 			}
 
-			exit;
+			print( "\e[39m\n\n" );
+
+			if ( ! $project ) {
+				exit;
+			}
 
 		}
 
