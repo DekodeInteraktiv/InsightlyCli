@@ -22,7 +22,7 @@ class InsightlyService {
 			return $projects;
 		}
 
-		$endpoint = '/Projects';
+		$endpoint = '/Projects?top=99999999';
 
 		$projects = $this->make_request( $endpoint );
 
@@ -44,7 +44,7 @@ class InsightlyService {
 	 *
 	 * @return mixed
 	 */
-	public function get_projects_by_name( $name ) {
+	public function get_project_by_name( $name ) {
 		$projects = $this->get_projects();
 		$name     = strtolower( $name );
 		foreach ( $projects as $project ) {
@@ -53,6 +53,29 @@ class InsightlyService {
 				return $project;
 			}
 		}
+	}
+
+	public function get_projects_by_name_similarity( $name ) {
+		$projects     = $this->get_projects();
+		$name         = strtolower( $name );
+		$similarities = [];
+		foreach ( $projects as $index => $project ) {
+
+			similar_text( $name, strtolower( $project->get_name() ), $similarity );
+			if ( $similarity > 80 ) {
+				$similarities[ $index ] = $similarity;
+			}
+		}
+
+		arsort( $similarities );
+
+
+		foreach ( $similarities as $index => $similarity ) {
+			$return_array[] = $projects[ $index ];
+		}
+
+		return $return_array;
+
 	}
 
 	/**

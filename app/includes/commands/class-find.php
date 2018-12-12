@@ -44,10 +44,18 @@ class Find extends Command {
 	public function run() {
 		$insightly_service = new InsightlyService();
 		$insightly_service->set_api_key( INSIGHTLY_API_KEY );
-		$project = $insightly_service->get_projects_by_name( $this->get_arguments()[2] );
+		$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
 
 		if ( ! $project ) {
-			print ( "\n\e[31mWe could not find that project.\n" );
+			$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
+
+			print ( "\n\e[31mWe could not find that project.\n\n" );
+			print( "\e[39m" . 'Did you mean one of these projects?' . "\n\n" );
+
+			foreach ( $similar_projects as $project ) {
+				print( $project->get_name() . "\n" );
+			}
+
 			exit;
 
 		}
