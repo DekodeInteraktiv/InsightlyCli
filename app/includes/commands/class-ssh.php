@@ -32,7 +32,7 @@ class SSH extends Command {
 	public function get_help(): string {
 		$help = "Usage:\nisc ssh <name of project>\n\n";
 		$help .= "Examples:\n";
-		$help .= 'ssh $(isc find finansforbundet.no)' . "\n";
+		$help .= 'ssh $(isc ssh finansforbundet.no)' . "\n";
 
 		return $help;
 
