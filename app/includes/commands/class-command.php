@@ -34,6 +34,19 @@ abstract class Command {
 	abstract public function get_help(): string;
 
 
+	private function parse_flags( $arguments ) {
+		foreach ( $arguments as $argument ) {
+			if ( strpos( $argument, '--' ) === 0 ) {
+				list( $flag, $value ) = explode( '=', $argument );
+				$flag = str_replace( '--', '', $flag );
+
+				$arguments[ $flag ] = $value;
+			}
+		}
+
+		return $arguments;
+	}
+
 	/**
 	 * @return array
 	 */
@@ -45,6 +58,8 @@ abstract class Command {
 	 * @param array $arguments
 	 */
 	public function set_arguments( array $arguments ) {
+		$arguments = $this->parse_flags( $arguments );
+
 		$this->arguments = $arguments;
 	}
 

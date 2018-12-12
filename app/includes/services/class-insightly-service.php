@@ -78,6 +78,25 @@ class InsightlyService {
 
 	}
 
+	public function save_project( Project $project ) {
+		$body['PROJECT_ID'] = $project->get_id();
+
+		$custom_field                = [];
+		$custom_field['FIELD_NAME']  = 'ssh_tpprod__c';
+		$custom_field['FIELD_VALUE'] = $project->get_ssh_to_prod();
+		$body['CUSTOMFIELDS'][]      = $custom_field;
+
+		$endpoint = '/Projects';
+
+		$args['headers']['Content-type'] = 'application/json';
+		$args['method']                  = 'PUT';
+		$args['body']                    = json_encode( $body, JSON_PRETTY_PRINT );
+
+		$result = $this->make_request( $endpoint, $args );
+
+		$this->clear_cache();
+	}
+
 	/**
 	 * Makes the actual request to the API.
 	 *
@@ -97,7 +116,10 @@ class InsightlyService {
 		$endpoint = $this->get_api_path() . $endpoint;
 
 		$client = new \GuzzleHttp\Client();
-		$res    = $client->request( $args['method'], $endpoint, [ 'headers' => $args['headers'] ] );
+		$res    = $client->request( $args['method'], $endpoint, [
+			'headers' => $args['headers'],
+			'body'    => $args['body']
+		] );
 		$body   = $res->getBody()->getContents();
 
 		return json_decode( $body );
@@ -137,6 +159,7 @@ class InsightlyService {
 
 		return $project;
 	}
+
 
 	/**
 	 * Deletes all cache files
