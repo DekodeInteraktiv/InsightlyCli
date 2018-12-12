@@ -46,6 +46,8 @@ class Find extends Command {
 		$insightly_service->set_api_key( INSIGHTLY_API_KEY );
 		$project = $insightly_service->get_projects_by_name( $this->get_arguments()[2] );
 
+		print( "ID:\t" . $project->get_id() . "\n" );
+		print( "URL:\t" . $project->get_url() . "\n" );
 		print( "Reverse proxy:\t" . $project->get_reverse_proxy() . "\n" );
 		print( "SSH to prod:\t" . $project->get_ssh_to_prod() . "\n" );
 
