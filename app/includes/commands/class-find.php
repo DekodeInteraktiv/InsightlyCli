@@ -56,12 +56,12 @@ class Find extends Command {
 			}
 
 			if ( ! $project ) {
+				$climate->error( 'No similar project was found.' );
 				exit;
 			}
 
 		}
 
-		echo "\n";
 		$climate->green()->bold()->out( $project->get_name() . "\n" );
 		print( "ID:\t" . $project->get_id() . "\n" );
 		print( "URL:\t" . $project->get_url() . "\n\n" );
