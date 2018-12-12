@@ -64,7 +64,8 @@ class Find extends Command {
 
 		}
 
-		print( "ID:\t" . $project->get_id() . "\n" );
+		print( "\e[1m" . $project->get_name() . "\n" );
+		print( "\e[0mID:\t" . $project->get_id() . "\n" );
 		print( "URL:\t" . $project->get_url() . "\n\n" );
 
 
