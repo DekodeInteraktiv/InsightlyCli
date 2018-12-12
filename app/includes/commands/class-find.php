@@ -62,8 +62,6 @@ class Find extends Command {
 
 		}
 
-		print_r( $project );
-
 		$climate->green()->bold()->out( $project->get_name() . "\n" );
 		print( "ID:\t" . $project->get_id() . "\n" );
 		print( "URL:\t" . $project->get_url() . "\n\n" );
