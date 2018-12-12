@@ -63,21 +63,25 @@ class Find extends Command {
 		}
 
 		$climate->green()->bold()->out( '-= ' . strtoupper( $project->get_name() ) . " =- \n" );
-		$climate->cyan( "ID:\t\t" . $project->get_id() );
-		$climate->cyan( "URL:\t\t" . $project->get_url() . "\n" );
+		$climate->cyan( "ID:\t\t\t" . $project->get_id() );
+		$climate->cyan( "URL:\t\t\t" . $project->get_url() . "\n" );
 
 		$climate->yellow( "Responsbile advisor:\t" . $project->get_responsible_advisor() );
 		$climate->yellow( "Project manager:\t" . $project->get_project_manager() . "\n" );
 
+		$climate->green( "SSH to prod:\t\t" . $project->get_ssh_to_prod() );
 		$climate->green( "Prod. server:\t\t" . $project->get_prod_server() );
 		$climate->green( "Reverse proxy:\t\t" . $project->get_reverse_proxy() );
-		$climate->green( "SSH to prod:\t\t" . $project->get_ssh_to_prod() . "\n" );
+		$climate->green( "DB instance:\t\t" . $project->get_db_instance() . "\n" );
+
 
 		$climate->red( "Prod URL:\t\t" . $project->get_prod_url() );
 		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() . "\n" );
 
-		$climate->white( 'Hosting notes:' );
-		$climate->white( $project->get_hosting_notes() );
+		if ( $project->get_hosting_notes() ) {
+			$climate->white( 'Hosting notes:' );
+			$climate->white( $project->get_hosting_notes() );
+		}
 
 
 	}
