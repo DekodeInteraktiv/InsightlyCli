@@ -33,6 +33,17 @@ abstract class Command {
 	 */
 	abstract public function get_help(): string;
 
+	/**
+	 * Gets an instance of climate.
+	 *
+	 * @return \League\CLImate\CLImate
+	 */
+	protected function get_climate() {
+		$climate = new \League\CLImate\CLImate;
+
+		return $climate;
+	}
+
 
 	private function parse_flags( $arguments ) {
 		foreach ( $arguments as $argument ) {

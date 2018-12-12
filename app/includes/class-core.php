@@ -3,6 +3,7 @@
 namespace Dekode\InsightlyCli;
 
 use Dekode\InsightlyCli\Commands\Command;
+use League\CLImate\CLImate;
 
 class Core {
 	private $command;
@@ -72,11 +73,13 @@ class Core {
 			}
 		}
 
-		echo "\n";
-		echo "\e[33m" . "Available commands\n";
+		$climate = new CLImate();
+
+		$climate->yellow( 'Available commands' );
 
 		foreach ( $this->get_commands() as $command ) {
-			echo " \e[32m" . $command->get_key() . "\t\t\t\e[39m" . $command->get_description() . "\n";
+			$climate->green()->inline( ' ' . $command->get_key() . "\t\t\t" );
+			echo $command->get_description() . "\n";
 		}
 
 		echo "\n";

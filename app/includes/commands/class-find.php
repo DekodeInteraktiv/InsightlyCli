@@ -42,6 +42,8 @@ class Find extends Command {
 	 * Executes this command
 	 */
 	public function run() {
+		$climate = $this->get_climate();
+
 		$insightly_service = new InsightlyService();
 		$insightly_service->set_api_key( INSIGHTLY_API_KEY );
 		$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
@@ -59,8 +61,9 @@ class Find extends Command {
 
 		}
 
-		print( "\e[1m" . $project->get_name() . "\n" );
-		print( "\e[0mID:\t" . $project->get_id() . "\n" );
+		echo "\n";
+		$climate->green()->bold()->out( $project->get_name() . "\n" );
+		print( "ID:\t" . $project->get_id() . "\n" );
 		print( "URL:\t" . $project->get_url() . "\n\n" );
 
 

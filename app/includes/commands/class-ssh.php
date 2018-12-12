@@ -45,9 +45,10 @@ class SSH extends Command {
 		$insightly_service = new InsightlyService();
 		$insightly_service->set_api_key( INSIGHTLY_API_KEY );
 		$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
+		$climate = $this->get_climate();
 
 		if ( ! $project ) {
-			print ( "\n\e[31mThat project could not be found.\n" );
+			$climate->error( 'That project could not be found.' );
 			exit;
 		}
 
