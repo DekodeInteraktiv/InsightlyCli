@@ -81,10 +81,21 @@ class InsightlyService {
 	public function save_project( Project $project ) {
 		$body['PROJECT_ID'] = $project->get_id();
 
-		$custom_field                = [];
-		$custom_field['FIELD_NAME']  = 'ssh_tpprod__c';
-		$custom_field['FIELD_VALUE'] = $project->get_ssh_to_prod();
-		$body['CUSTOMFIELDS'][]      = $custom_field;
+		$fields_to_save = [
+			'ssh_tpprod__c' => $project->get_ssh_to_prod(),
+			'Prod_url__c'   => $project->get_prod_url(),
+			'Stage_url__c'  => $project->get_stage_url(),
+
+		];
+
+		foreach ( $fields_to_save as $field => $value ) {
+
+			$custom_field                = [];
+			$custom_field['FIELD_NAME']  = $field;
+			$custom_field['FIELD_VALUE'] = $value;
+			$body['CUSTOMFIELDS'][]      = $custom_field;
+		}
+
 
 		$endpoint = '/Projects';
 
@@ -148,14 +159,34 @@ class InsightlyService {
 						break;
 					case 'Prod_server__c':
 						$project->set_prod_server( $custom_field->FIELD_VALUE );
+						break;
+					case 'DBInstans__c':
+						$project->set_db_instance( $custom_field->FIELD_VALUE );
+						break;
+					case 'Stage_url__c':
+						$project->set_stage_url( $custom_field->FIELD_VALUE );
+						break;
+					case 'Project_Manager__c':
+						$project->set_project_manager( $custom_field->FIELD_VALUE );
+						break;
+					case 'Responsible_Advisor__c':
+						$project->set_responsible_advisor( $custom_field->FIELD_VALUE );
+						break;
+					case 'Prod_url__c':
+						$project->set_prod_url( $custom_field->FIELD_VALUE );
+						break;
+					case 'Hosting_note__c':
+						$project->set_hosting_notes( $custom_field->FIELD_VALUE );
+						break;
 					default:
-						//print( $custom_field->FIELD_NAME . "\n" );
+						//print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
 						break;
 				}
 
 
 			}
 		}
+
 
 		return $project;
 	}

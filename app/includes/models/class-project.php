@@ -10,6 +10,11 @@ class Project {
 	private $reverse_proxy;
 	private $ssh_to_prod;
 	private $prod_server;
+	private $db_instance;
+	private $stage_url;
+	private $prod_url;
+	private $project_manager;
+	private $hosting_notes;
 
 	/**
 	 * @return mixed
@@ -97,6 +102,77 @@ class Project {
 
 	public function get_url() {
 		return "https://crm.na1.insightly.com/details/Project/" . $this->get_id();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_db_instance() {
+		return $this->db_instance;
+	}
+
+	/**
+	 * @param mixed $db_instance
+	 */
+	public function set_db_instance( $db_instance ) {
+		$this->db_instance = $db_instance;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_stage_url() {
+		return $this->stage_url;
+	}
+
+	/**
+	 * @param mixed $stage_url
+	 */
+	public function set_stage_url( $stage_url ) {
+		$this->stage_url = $stage_url;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_prod_url() {
+		return $this->prod_url;
+	}
+
+	/**
+	 * @param mixed $prod_url
+	 */
+	public function set_prod_url( $prod_url ) {
+		$this->prod_url = $prod_url;
+	}
+
+
+	/**
+	 * @return mixed
+	 */
+	public function get_project_manager() {
+		return $this->project_manager;
+	}
+
+	/**
+	 * @param mixed $project_manager
+	 */
+	public function set_project_manager( $project_manager ) {
+		$this->project_manager = $project_manager;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_hosting_notes() {
+		return $this->hosting_notes;
+	}
+
+	/**
+	 * @param mixed $hosting_notes
+	 */
+	public function set_hosting_notes( $hosting_notes ) {
+		$this->hosting_notes = $hosting_notes;
 	}
 
 }

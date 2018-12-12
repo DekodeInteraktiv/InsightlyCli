@@ -48,10 +48,16 @@ abstract class Command {
 	private function parse_flags( $arguments ) {
 		foreach ( $arguments as $argument ) {
 			if ( strpos( $argument, '--' ) === 0 ) {
-				list( $flag, $value ) = explode( '=', $argument );
-				$flag = str_replace( '--', '', $flag );
+				if ( strpos( $argument, '=' ) !== false ) {
 
-				$arguments[ $flag ] = $value;
+					list( $flag, $value ) = explode( '=', $argument );
+					$flag = str_replace( '--', '', $flag );
+
+					$arguments[ $flag ] = $value;
+				} else {
+					$flag               = str_replace( '--', '', $argument );
+					$arguments[ $flag ] = null;
+				}
 			}
 		}
 

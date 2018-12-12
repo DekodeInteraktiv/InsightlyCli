@@ -62,14 +62,26 @@ class Find extends Command {
 
 		}
 
+		print_r( $project );
+
 		$climate->green()->bold()->out( $project->get_name() . "\n" );
 		print( "ID:\t" . $project->get_id() . "\n" );
 		print( "URL:\t" . $project->get_url() . "\n\n" );
 
+		print( "Responsbile advisor:\t" . $project->get_responsible_advisor() . "\n" );
+		print( "Project manager:\t" . $project->get_project_manager() . "\n\n" );
+
 
 		print( "Prod. server:\t" . $project->get_prod_server() . "\n" );
 		print( "Reverse proxy:\t" . $project->get_reverse_proxy() . "\n" );
-		print( "SSH to prod:\t" . $project->get_ssh_to_prod() . "\n" );
+		print( "SSH to prod:\t" . $project->get_ssh_to_prod() . "\n\n" );
+
+		print( "Prod URL:\t" . $project->get_prod_url() . "\n" );
+		print( "Stage URL:\t" . $project->get_stage_url() . "\n\n" );
+
+		print( 'Hosting notes:' . "\n" );
+		print( $project->get_hosting_notes() . "\n" );
+
 
 	}
 }

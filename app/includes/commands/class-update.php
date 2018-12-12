@@ -35,6 +35,8 @@ class Update extends Command {
 		$help .= "isc update <name of project> --ssh-to-prod=\"ssh root@somedomain\"\n\n";
 		$help .= "Flags:\n";
 		$help .= "ssh-to-prod\tUpdates the field \"SSH to prod\"" . "\n";
+		$help .= "prod-url\tUpdates the URL for the production server." . "\n";
+		$help .= "stage-url\tUpdates the URL for the stage server." . "\n";
 
 		return $help;
 
@@ -54,31 +56,32 @@ class Update extends Command {
 			exit;
 		}
 
-		$arguments = $this->get_arguments();
+		$arguments        = $this->get_arguments();
+		$fields_to_update = false;
 
-		if ( $arguments['ssh-to-prod'] ) {
-			$climate->bold( 'SSH to prod' );
-			$climate->red( "Old value:\t" . $project->get_ssh_to_prod() );
-			$climate->green( "New value:\t" . $arguments['ssh-to-prod'] );
+		print_r( $arguments );
 
-			$valid_answer     = false;
-			$fields_to_update = false;
-			while ( ! $valid_answer ) {
-				$climate->yellow()->inline( "Are you sure (Y/n)?" );
-				$answer = readline();
-
-				if ( strtolower( $answer ) == 'y' || ! $answer ) {
-					$project->set_ssh_to_prod( $arguments['ssh-to-prod'] );
-					$fields_to_update = true;
-					$valid_answer     = true;
-				} elseif ( strtolower( $answer ) == 'n' ) {
-					$valid_answer = true;
-				} else {
-					$climate->error( 'Invalid answer' );
-				}
-
-			}
+		if ( isset( $arguments['ssh-to-prod'] ) ) {
+			if ( $this->confirm( $project->get_ssh_to_prod(), $arguments['ssh-to-prod'], 'SSH to prod' ) ) {
+				$fields_to_update = true;
+				$project->set_ssh_to_prod( $arguments['ssh-to-prod'] );
+			};
 		}
+
+		if ( isset( $arguments['prod-url'] ) ) {
+			if ( $this->confirm( $project->get_prod_url(), $arguments['prod-url'], 'The URL to the production site' ) ) {
+				$fields_to_update = true;
+				$project->set_prod_url( $arguments['prod-url'] );
+			};
+		}
+
+		if ( isset( $arguments['stage-url'] ) ) {
+			if ( $this->confirm( $project->get_stage_url(), $arguments['stage-url'], 'The URL to the stage site' ) ) {
+				$fields_to_update = true;
+				$project->set_stage_url( $arguments['stage-url'] );
+			};
+		}
+
 
 		if ( ! $fields_to_update ) {
 			$climate->error( 'No fields to update.' );
@@ -87,5 +90,33 @@ class Update extends Command {
 
 		$insightly_service->save_project( $project );
 		$climate->green( 'Project updated.' );
+	}
+
+	private function confirm( $old_value, $new_value, $label ) {
+		$climate = $this->get_climate();
+		$climate->bold( $label );
+		$climate->red( "Old value:\t" . $old_value );
+		$climate->green( "New value:\t" . $new_value );
+
+		$valid_answer = false;
+		while ( ! $valid_answer ) {
+			$climate->yellow()->inline( "Are you sure (Y/n)?" );
+			$answer = readline();
+
+			if ( strtolower( $answer ) == 'y' || ! $answer ) {
+				$fields_to_update = true;
+				$valid_answer     = true;
+
+				return true;
+			} elseif ( strtolower( $answer ) == 'n' ) {
+				$valid_answer = true;
+			} else {
+				$climate->error( 'Invalid answer' );
+			}
+
+		}
+
+		return false;
+
 	}
 }
