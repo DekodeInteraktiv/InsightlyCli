@@ -59,8 +59,6 @@ class Update extends Command {
 		$arguments        = $this->get_arguments();
 		$fields_to_update = false;
 
-		print_r( $arguments );
-
 		if ( isset( $arguments['ssh-to-prod'] ) ) {
 			if ( $this->confirm( $project->get_ssh_to_prod(), $arguments['ssh-to-prod'], 'SSH to prod' ) ) {
 				$fields_to_update = true;
