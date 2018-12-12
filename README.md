@@ -1,13 +1,30 @@
 #Insightly cli
-## Setting things up
+## Setting up
 1.  Clone the repository.
-2.  Run `composer install`
+2.  Run `cd src && composer install`
 3. Copy `config-sample.php` to `config.php` and add the Insightly API key. See [here](https://support.insight.ly/hc/en-us/articles/204864594-Finding-or-resetting-your-API-key) on how to find it.
 
-## Commands
-### Find
-Finds information about a specific project.
-
-Examples:
+## Building
+    php build.php
+    sudo mv insightly-cli.phar /usr/local/bin/isc
+    sudo chmod +x /usr/local/bin/isc
     
-    php insightly.php find finansforbundet.no  
+You can now access the script from anywhere through the command `isc`. 
+
+## Commands
+To get information on available commands, run `isc help`.
+
+## Extending
+To make a new command, create it in the directory `includes/src/commands`. It must be a class extending the `Command` base class.
+
+Implement all required methods, and then add it to the core in insightly-cli.php. To do that, add it to the array in the instantiation of the Core class.
+
+**Example:**
+
+<pre>
+$core = new \Dekode\InsightlyCli\Core( [
+    new \Dekode\InsightlyCli\Commands\Find(),
+    <b>new \Dekode\InsightlyCli\Commands\MyNewCommand()</b>
+] );
+</pre>
+
