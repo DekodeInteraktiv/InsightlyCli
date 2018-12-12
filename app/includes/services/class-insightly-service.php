@@ -15,6 +15,13 @@ class InsightlyService {
 	 * @return array
 	 */
 	public function get_projects() {
+		$tmp_filename = $this->get_projects_cache_file();
+		if ( file_exists( $tmp_filename ) && filemtime( $tmp_filename ) > time() - 60 * 60 ) {
+			$projects = unserialize( file_get_contents( $tmp_filename ) );
+
+			return $projects;
+		}
+
 		$endpoint = '/Projects';
 
 		$projects = $this->make_request( $endpoint );
@@ -22,6 +29,8 @@ class InsightlyService {
 		foreach ( $projects as $project ) {
 			$return_value[] = $this->convert_insightly_project( $project );
 		}
+
+		file_put_contents( $tmp_filename, serialize( $return_value ) );
 
 		return $return_value;
 
@@ -104,6 +113,23 @@ class InsightlyService {
 		}
 
 		return $project;
+	}
+
+	/**
+	 * Deletes all cache files
+	 */
+	public function clear_cache() {
+		unlink( $this->get_projects_cache_file() );
+
+	}
+
+	/**
+	 * Returns the path of the cache file for projects.
+	 *
+	 * @return string
+	 */
+	private function get_projects_cache_file() {
+		return sys_get_temp_dir() . '/isc-projects.cache';
 	}
 
 	/**
