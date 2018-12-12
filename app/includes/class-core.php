@@ -64,8 +64,12 @@ class Core {
 		$arguments = $this->get_arguments();
 		if ( $arguments[2] ) {
 			$command = $this->get_command_object( $arguments[2] );
-			echo $command->get_help();
-			exit();
+
+			if ( $command ) {
+
+				echo $command->get_help();
+				exit();
+			}
 		}
 
 		echo "\n";
