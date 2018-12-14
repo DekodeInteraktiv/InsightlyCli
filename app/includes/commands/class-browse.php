@@ -42,7 +42,7 @@ class Browse extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService();
+		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$similar_projects  = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 		$climate           = $this->get_climate();
 		$os                = OperatingSystemService::get_current_os();

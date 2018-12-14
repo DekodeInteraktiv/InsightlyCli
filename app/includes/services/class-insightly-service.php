@@ -10,6 +10,15 @@ class InsightlyService {
 	private $api_key;
 
 	/**
+	 * InsightlyService constructor.
+	 *
+	 * @param $api_key
+	 */
+	public function __construct( $api_key ) {
+		$this->set_api_key( $api_key );
+	}
+
+	/**
 	 * Returns an array of all projects.
 	 *
 	 * @return array
@@ -55,6 +64,13 @@ class InsightlyService {
 		}
 	}
 
+	/**
+	 * Searches through all projects and returns an array of projects with at least 50% similarity.
+	 *
+	 * @param $name
+	 *
+	 * @return array
+	 */
 	public function get_projects_by_name_similarity( $name ) {
 		$projects     = $this->get_projects();
 		$name         = strtolower( $name );
@@ -78,6 +94,13 @@ class InsightlyService {
 
 	}
 
+	/**
+	 * Saves the passed project.
+	 *
+	 * @param Project $project
+	 *
+	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 */
 	public function save_project( Project $project ) {
 		$body['PROJECT_ID'] = $project->get_id();
 

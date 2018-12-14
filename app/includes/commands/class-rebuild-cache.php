@@ -40,7 +40,7 @@ class ClearCache extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService();
+		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$insightly_service->clear_cache();
 		$insightly_service->get_projects();
 

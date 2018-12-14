@@ -44,9 +44,8 @@ class Find extends Command {
 	public function run() {
 		$climate = $this->get_climate();
 
-		$insightly_service = new InsightlyService();
-		$insightly_service->set_api_key( INSIGHTLY_API_KEY );
-		$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
+		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
+		$project           = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
 
 		if ( ! $project ) {
 			$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
