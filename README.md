@@ -15,7 +15,7 @@ To get information on available commands, run `isc help`.
 ## Extending
 To make a new command, create it in the directory `includes/src/commands`. It must be a class extending the `Command` base class.
 
-Implement all required methods, and then add it to the core in insightly-cli.php. To do that, add it to the array in the instantiation of the Core class.
+Implement all required methods, and then add it to the core in insightly-cli.php. To do that, add it to the array in the instantiation of the Core class in insightly-cli.php.
 
 **Example:**
 
