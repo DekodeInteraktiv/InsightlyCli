@@ -16,7 +16,14 @@ class Core {
 	 * @param array $commands
 	 */
 	public function __construct( array $commands ) {
-		$this->set_commands( $commands );
+
+		foreach ($commands as $command) {
+			$sorted_commands[$command->get_key()] = $command;
+		}
+
+		ksort($sorted_commands);
+
+		$this->set_commands( $sorted_commands );
 	}
 
 	/**
