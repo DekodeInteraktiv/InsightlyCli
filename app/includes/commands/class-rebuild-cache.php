@@ -12,7 +12,7 @@ class ClearCache extends Command {
 	 * @return string
 	 */
 	public function get_key(): string {
-		return 'clear-cache';
+		return 'rebuild-cache';
 	}
 
 	/**
@@ -21,7 +21,7 @@ class ClearCache extends Command {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Clear cache for InsightlyCli.';
+		return 'Rebuilds cache for InsightlyCli.';
 	}
 
 	/**
@@ -30,7 +30,7 @@ class ClearCache extends Command {
 	 * @return string
 	 */
 	public function get_help(): string {
-		$help = "Usage:\nisc clear-cache\n\n";
+		$help = "Usage:\nisc " . $this->get_key() . "\n\n";
 
 		return $help;
 
@@ -42,8 +42,9 @@ class ClearCache extends Command {
 	public function run() {
 		$insightly_service = new InsightlyService();
 		$insightly_service->clear_cache();
+		$insightly_service->get_projects();
 
-		print( 'Cache cleared.' );
+		print( 'Cache cleared.' . "\n" );
 
 	}
 }

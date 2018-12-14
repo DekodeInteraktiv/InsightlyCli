@@ -64,7 +64,7 @@ class Find extends Command {
 
 		$climate->green()->bold()->out( '-= ' . strtoupper( $project->get_name() ) . " =- \n" );
 		$climate->cyan( "ID:\t\t\t" . $project->get_id() );
-		$climate->cyan( "URL:\t\t\t" . $project->get_url() . "\n" );
+		$climate->cyan( "URL:\t\t\t" . $project->get_insightly_url() . "\n" );
 
 		$climate->yellow( "Responsbile advisor:\t" . $project->get_responsible_advisor() );
 		$climate->yellow( "Project manager:\t" . $project->get_project_manager() . "\n" );

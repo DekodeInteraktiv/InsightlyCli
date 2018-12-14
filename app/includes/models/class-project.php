@@ -100,7 +100,7 @@ class Project {
 		$this->prod_server = $prod_server;
 	}
 
-	public function get_url() {
+	public function get_insightly_url() {
 		return "https://crm.na1.insightly.com/details/Project/" . $this->get_id();
 	}
 
