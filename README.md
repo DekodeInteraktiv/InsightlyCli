@@ -12,6 +12,11 @@ You can now access the script from anywhere through the command `isc`.
 ## Commands
 To get information on available commands, run `isc help`.
 
+## Tips and tricks
+To avoid having to wait for cache rebuilding - cache is invalidated every hour - rebuild it in a cronjob by adding this to your crontab:
+
+	*/30 * * * * isc rebuild-cache
+
 ## Extending
 To make a new command, create it in the directory `includes/src/commands`. It must be a class extending the `Command` base class.
 
