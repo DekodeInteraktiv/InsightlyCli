@@ -1,4 +1,4 @@
-/config.php
+/app/config.php
 /app/vendor
 /.idea
 /insightly-cli.phar

@@ -221,7 +221,9 @@ class InsightlyService {
 	 * Deletes all cache files
 	 */
 	public function clear_cache() {
-		unlink( $this->get_projects_cache_file() );
+		if ( file_exists( $this->get_projects_cache_file() ) ) {
+			unlink( $this->get_projects_cache_file() );
+		}
 
 	}
 
