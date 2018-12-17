@@ -75,6 +75,8 @@ class InsightlyService {
 		$projects     = $this->get_projects();
 		$name         = strtolower( $name );
 		$similarities = [];
+		$return_array = [];
+
 		foreach ( $projects as $index => $project ) {
 
 			similar_text( $name, strtolower( $project->get_name() ), $similarity );
@@ -141,7 +143,7 @@ class InsightlyService {
 	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
 	private function make_request( $endpoint, $args = [] ) {
-		if ( ! $args['method'] ) {
+		if ( ! isset( $args['method'] ) ) {
 			$args['method'] = 'GET';
 		}
 
@@ -152,7 +154,7 @@ class InsightlyService {
 		$client = new \GuzzleHttp\Client();
 		$res    = $client->request( $args['method'], $endpoint, [
 			'headers' => $args['headers'],
-			'body'    => $args['body']
+			'body'    => isset( $args['body'] ) ? $args['body'] : ''
 		] );
 		$body   = $res->getBody()->getContents();
 

@@ -34,7 +34,10 @@ if ( $argv[0] == 'php' ) {
 	array_shift( $argv );
 }
 
-$core->set_command( $argv[1] );
+if ( isset( $argv[1] ) ) {
+	$core->set_command( $argv[1] );
+}
+
 $core->set_arguments( $argv );
 $core->execute();
 

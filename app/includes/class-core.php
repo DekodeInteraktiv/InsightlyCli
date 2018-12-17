@@ -17,11 +17,11 @@ class Core {
 	 */
 	public function __construct( array $commands ) {
 
-		foreach ($commands as $command) {
-			$sorted_commands[$command->get_key()] = $command;
+		foreach ( $commands as $command ) {
+			$sorted_commands[ $command->get_key() ] = $command;
 		}
 
-		ksort($sorted_commands);
+		ksort( $sorted_commands );
 
 		$this->set_commands( $sorted_commands );
 	}
@@ -70,7 +70,7 @@ class Core {
 	 */
 	private function display_help() {
 		$arguments = $this->get_arguments();
-		if ( $arguments[2] ) {
+		if ( isset( $arguments[2] ) ) {
 			$command = $this->get_command_object( $arguments[2] );
 
 			if ( $command ) {

@@ -40,11 +40,14 @@ class ClearCache extends Command {
 	 * Executes this command
 	 */
 	public function run() {
+		$climate = $this->get_climate();
+		$climate->yellow( 'Rebuilding cache. This could take some time.' );
+
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$insightly_service->clear_cache();
 		$insightly_service->get_projects();
 
-		print( 'Cache cleared.' . "\n" );
+		$climate->success( 'Cache rebuilt.' );
 
 	}
 }
