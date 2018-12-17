@@ -24,6 +24,11 @@ class RackspaceService {
 		$this->generate_token();
 	}
 
+	/**
+	 * Racksapce needs a token to communicate with its api. This function does that.
+	 *
+	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 */
 	private function generate_token() {
 		$auth_body = [
 			'auth' => [
@@ -46,6 +51,12 @@ class RackspaceService {
 
 	}
 
+	/**
+	 * Returns all servers in rackspace cloud.
+	 *
+	 * @return array
+	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 */
 	public function get_servers() {
 		$results = $this->make_request( '/servers/detail' );
 		$servers = [];
@@ -63,6 +74,12 @@ class RackspaceService {
 
 	}
 
+	/**
+	 * Returns all load balancers in Rackspace.
+	 *
+	 * @return array
+	 * @throws \GuzzleHttp\Exception\GuzzleException
+	 */
 	public function get_load_balancers() {
 		$url     = 'https://lon.loadbalancers.api.rackspacecloud.com/v1.0/' . $this->get_tenant_id();
 		$results = $this->make_request( '/loadbalancers', [ 'url' => $url ] );
@@ -94,7 +111,14 @@ class RackspaceService {
 
 	}
 
-	private function convert_api_to_server( $raw_server ) {
+	/**
+	 * Converts the raw output from Rackspace to RackspaceServer object.
+	 *
+	 * @param $raw_server
+	 *
+	 * @return RackspaceServer
+	 */
+	private function convert_api_to_server( $raw_server ): RackspaceServer {
 		$server = new RackspaceServer();
 		$server->set_name( $raw_server->name );
 

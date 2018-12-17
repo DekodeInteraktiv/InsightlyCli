@@ -76,6 +76,8 @@ class Sync extends Command {
 
 
 	/**
+	 * Gets all servers from all our service providers.
+	 *
 	 * @return array
 	 */
 	private function get_servers(): array {
@@ -104,6 +106,8 @@ class Sync extends Command {
 	}
 
 	/**
+	 * If there is no production URL in Insightly, sometimes the name of the project is the production URL. Try that, and if successful, save.
+	 *
 	 * @param Project $project
 	 *
 	 * @return array|null
@@ -128,6 +132,11 @@ class Sync extends Command {
 
 	}
 
+	/**
+	 * Try to find the IP address of the server and save the ssh command.
+	 *
+	 * @param Project $project
+	 */
 	private function find_ssh_command_and_update( Project $project ) {
 		$this->climate->green( 'Trying to find SSH command.' );
 
@@ -168,6 +177,8 @@ class Sync extends Command {
 	}
 
 	/**
+	 * Tries to get the IP address of the projects host name.
+	 *
 	 * @param Project $project
 	 *
 	 * @return string
@@ -187,7 +198,9 @@ class Sync extends Command {
 	}
 
 	/**
-	 * @param string $ip
+	 * Loops through our list of servers trying to find a server which matches a specific IP address.
+	 *
+	 * @param string $ip The IP address to find.
 	 *
 	 * @return mixed
 	 */
@@ -232,6 +245,8 @@ class Sync extends Command {
 	}
 
 	/**
+	 * Fetches a URL.
+	 *
 	 * @param string $url
 	 *
 	 * @return \GuzzleHttp\Psr7\Response
