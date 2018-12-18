@@ -17,8 +17,11 @@ class OperatingSystemService {
 			case 'Linux':
 				return new Linux();
 				break;
+			case 'Darwin':
+				return new Mac();
+				break;
 			default:
-				echo 'Unknown operating system: ' . PHP_OS;
+				echo 'Unknown operating system: ' . PHP_OS . "\n";
 				die();
 
 		}

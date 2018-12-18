@@ -22,6 +22,7 @@ require( __DIR__ . '/includes/services/class-operating-system-service.php' );
 // Operating systems
 require( __DIR__ . '/includes/operating-systems/class-operating-system.php' );
 require( __DIR__ . '/includes/operating-systems/class-linux.php' );
+require( __DIR__ . '/includes/operating-systems/class-mac.php' );
 
 // Commands
 require( __DIR__ . '/includes/commands/class-command.php' );
