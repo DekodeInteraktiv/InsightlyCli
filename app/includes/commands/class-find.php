@@ -72,7 +72,8 @@ class Find extends Command {
 		$climate->cyan( "URL:\t\t\t" . $project->get_insightly_url() . "\n" );
 
 		$climate->yellow( "Responsbile advisor:\t" . $project->get_responsible_advisor() );
-		$climate->yellow( "Project manager:\t" . $project->get_project_manager() . "\n" );
+		$climate->yellow( "Project manager:\t" . $project->get_project_manager() );
+		$climate->yellow( "Service agreement:\t" . $project->get_service_agreement() . "\n" );
 
 		$climate->green( "SSH to prod:\t\t" . $project->get_ssh_to_prod() );
 		$climate->green( "Prod. server:\t\t" . $project->get_prod_server() );

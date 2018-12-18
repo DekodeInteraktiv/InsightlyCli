@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4873cc47440d930be1b65fe965b5cbbf",
+    "content-hash": "89b14c0f277b11ab37594c154480dfd5",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -249,6 +249,79 @@
                 "terminal"
             ],
             "time": "2018-04-29T16:43:54+00:00"
+        },
+        {
+            "name": "novutec/domainparser",
+            "version": "2.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/3name/DomainParser.git",
+                "reference": "b8b1e97b04749d3595408802d8cf7b77cbe2c7f9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/3name/DomainParser/zipball/b8b1e97b04749d3595408802d8cf7b77cbe2c7f9",
+                "reference": "b8b1e97b04749d3595408802d8cf7b77cbe2c7f9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pcre": "*",
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "Parser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "A domain name parser to parse and to validate a domain name.",
+            "homepage": "https://github.com/3name/DomainParser/",
+            "keywords": [
+                "domain",
+                "domainparser",
+                "php"
+            ],
+            "time": "2018-06-11T18:45:11+00:00"
+        },
+        {
+            "name": "novutec/whoisparser",
+            "version": "3.2.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/3name/WhoisParser.git",
+                "reference": "eb88e932e8878ceea71bc00fcbf0104dcaa64788"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/3name/WhoisParser/zipball/eb88e932e8878ceea71bc00fcbf0104dcaa64788",
+                "reference": "eb88e932e8878ceea71bc00fcbf0104dcaa64788",
+                "shasum": ""
+            },
+            "require": {
+                "novutec/domainparser": ">=2.0.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Novutec\\WhoisParser\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Lookup domain names, IP addresses and AS numbers by WHOIS.",
+            "homepage": "https://github.com/3name/WhoisParser/",
+            "keywords": [
+                "php",
+                "whois",
+                "whoisparser"
+            ],
+            "time": "2018-03-19T09:33:43+00:00"
         },
         {
             "name": "psr/http-message",

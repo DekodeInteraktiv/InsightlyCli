@@ -8,6 +8,8 @@ abstract class Server {
 	private $name;
 	private $id;
 
+	abstract function get_insightly_name();
+
 	/**
 	 * @return mixed
 	 */

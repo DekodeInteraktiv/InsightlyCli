@@ -15,6 +15,7 @@ class Project {
 	private $prod_url;
 	private $project_manager;
 	private $hosting_notes;
+	private $service_agreement;
 
 	/**
 	 * @return mixed
@@ -174,5 +175,20 @@ class Project {
 	public function set_hosting_notes( $hosting_notes ) {
 		$this->hosting_notes = $hosting_notes;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_service_agreement() {
+		return $this->service_agreement;
+	}
+
+	/**
+	 * @param mixed $service_agreement
+	 */
+	public function set_service_agreement( $service_agreement ) {
+		$this->service_agreement = $service_agreement;
+	}
+
 
 }

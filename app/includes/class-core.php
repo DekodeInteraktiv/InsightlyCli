@@ -82,7 +82,10 @@ class Core {
 
 		$climate = new CLImate();
 
+		$climate->green( 'InsightlyCli version ' . APP_VERSION . "\n" );
+
 		$climate->yellow( 'Available commands' );
+
 
 		foreach ( $this->get_commands() as $command ) {
 			$climate->green()->inline( ' ' . $command->get_key() . "\t\t\t" );

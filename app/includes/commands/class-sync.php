@@ -13,6 +13,7 @@ use League\CLImate\CLImate;
 class Sync extends Command {
 
 	private $servers;
+	private $report = [];
 
 	/**
 	 * Returns the string used to run this command.
@@ -55,8 +56,11 @@ class Sync extends Command {
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->projects          = $this->insightly_service->get_projects();
 
+		$number_of_projects = count( $this->projects );
+		$i                  = 0;
 		foreach ( $this->projects as $project ) {
-			$this->climate->yellow( "\n" . 'Working with ' . $project->get_name() );
+			$i ++;
+			$this->climate->yellow( "\n" . '(' . $i . '/' . $number_of_projects . ') Working with ' . $project->get_name() );
 
 
 			if ( ! $project->get_prod_url() ) {
@@ -64,12 +68,17 @@ class Sync extends Command {
 
 				if ( ! $project->get_prod_url() ) {
 					$this->climate->error( 'Domain could not be guessed.' );
+					$this->report['invalid_host'][] = $project;
 					continue;
 				}
 			}
 
-			$this->find_ssh_command_and_update( $project );
+			$this->find_production_server_and_update( $project );
+
+
 		}
+
+		$this->output_report();
 
 
 	}
@@ -84,10 +93,11 @@ class Sync extends Command {
 
 		if ( ! $this->servers ) {
 
-
 			$this->climate->yellow( 'Getting all Rackspace servers...' );
-			$this->rackspace_service  = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
-			$rackspace_servers        = $this->rackspace_service->get_servers();
+			$this->rackspace_service = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
+			$rackspace_servers       = $this->rackspace_service->get_servers();
+
+			$this->climate->yellow( 'Getting all Rackspace load balancers...' );
 			$rackspace_load_balancers = $this->rackspace_service->get_load_balancers();
 
 			$this->climate->yellow( 'Getting all Digital Ocean servers...' );
@@ -133,16 +143,16 @@ class Sync extends Command {
 	}
 
 	/**
-	 * Try to find the IP address of the server and save the ssh command.
+	 * Try to find the IP address/host name of the server and save the ssh command.
 	 *
 	 * @param Project $project
 	 */
-	private function find_ssh_command_and_update( Project $project ) {
+	private function find_production_server_and_update( Project $project ) {
 		$this->climate->green( 'Trying to find SSH command.' );
 
 		$ip = $this->get_ip( $project );
 
-		if ( ! preg_match( '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $ip ) ) {
+		if ( ! $this->is_ip( $ip ) ) {
 			$this->climate->error( 'IP could not be found' );
 
 			return;
@@ -152,7 +162,25 @@ class Sync extends Command {
 		$server = $this->find_server_by_ip( $ip );
 
 		if ( ! $server ) {
-			$this->climate->error( 'Server for that IP could not be found' );
+			$this->climate->cyan( 'Server for that IP could not be found' );
+
+			$reverse_proxy = $this->find_reverse_proxy( $ip );
+
+			if ( $reverse_proxy ) {
+				$this->climate->magenta( 'Found reverse proxy: "' . $reverse_proxy . '". Saving...' );
+				$project->set_reverse_proxy( $reverse_proxy );
+				$this->insightly_service->save_project( $project );
+
+				return;
+
+			}
+
+
+			$this->climate->cyan( 'Setting production server name to "other"...' );
+			$project->set_prod_server( 'Other' );
+			$this->insightly_service->save_project( $project );
+
+			$this->report['unknown_server'][] = $project;
 
 			return;
 		}
@@ -167,11 +195,17 @@ class Sync extends Command {
 			$ssh_host = $server->get_public_ip();
 		}
 
+		if ( $this->is_ip( $ssh_host ) ) {
+			$ssh_host = gethostbyaddr( $ssh_host );
+		}
+
 		$ssh = 'ssh root@' . $ssh_host;
 
-		$this->climate->green( 'Updating SSH to prod to "' . $ssh . '"' );
+		$this->climate->cyan( 'Updating SSH to prod to "' . $ssh . '"' );
+		$this->climate->cyan( 'Setting production server name to "' . $server->get_insightly_name() . '"..."' );
 
 		$project->set_ssh_to_prod( $ssh );
+		$project->set_prod_server( $server->get_insightly_name() );
 		$this->insightly_service->save_project( $project );
 
 	}
@@ -242,6 +276,58 @@ class Sync extends Command {
 			return $server;
 		}
 
+	}
+
+	/**
+	 * Outputs the report after having gone through all projects.
+	 */
+	private function output_report() {
+		$climate = $this->get_climate();
+
+		$climate->cyan( 'STATUS REPORT:' );
+
+
+		foreach ( $this->report as $label => $projects ) {
+			$climate->green( '-= ' . $label . ' =-' );
+
+			foreach ( $projects as $project ) {
+				$climate->yellow( $project->get_name() . ' (' . $project->get_insightly_url() . ')' );
+			}
+
+			print( "\n" );
+
+		}
+	}
+
+	private function find_reverse_proxy( $ip ) {
+		$parser = new \Novutec\WhoisParser\Parser();
+
+		$result = $parser->lookup( $ip );
+
+		$raw_data = current( $result->rawdata );
+
+		if ( stripos( $raw_data, 'sucuri' ) !== false ) {
+			return 'Sucuri';
+		}
+
+		if ( stripos( $raw_data, 'cloudflare' ) !== false ) {
+			return 'Cloudflare';
+		}
+
+		return false;
+
+
+	}
+
+	/**
+	 * Checks if the given string is an IPv4 address
+	 *
+	 * @param string $ip
+	 *
+	 * @return boolean
+	 */
+	private function is_ip( string $ip ): bool {
+		return preg_match( '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $ip );
 	}
 
 	/**

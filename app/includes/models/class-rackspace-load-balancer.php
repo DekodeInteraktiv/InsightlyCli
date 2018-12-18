@@ -7,6 +7,15 @@ class RackspaceLoadBalancer extends Server {
 	private $nodes;
 
 	/**
+	 * Returns the name of this server when saving it in Insightly.
+	 *
+	 * @return string
+	 */
+	public function get_insightly_name() {
+		return $this->get_name();
+	}
+
+	/**
 	 * Adds the IP address of a node to the list of nodes in this load balancer.
 	 *
 	 * @param string $node_private_ip The IP address of the node you want to add.

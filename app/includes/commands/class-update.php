@@ -85,6 +85,13 @@ class Update extends Command {
 			};
 		}
 
+		if ( isset( $arguments['prod-server'] ) ) {
+			if ( $this->confirm( $project->get_prod_server(), $arguments['prod-server'], 'The name of the production server' ) ) {
+				$fields_to_update = true;
+				$project->set_prod_server( $arguments['prod-server'] );
+			};
+		}
+
 
 		if ( ! $fields_to_update ) {
 			$climate->error( 'No fields to update.' );

@@ -107,10 +107,11 @@ class InsightlyService {
 		$body['PROJECT_ID'] = $project->get_id();
 
 		$fields_to_save = [
-			'ssh_tpprod__c' => $project->get_ssh_to_prod(),
-			'Prod_url__c'   => $project->get_prod_url(),
-			'Stage_url__c'  => $project->get_stage_url(),
-
+			'ssh_tpprod__c'    => $project->get_ssh_to_prod(),
+			'Prod_url__c'      => $project->get_prod_url(),
+			'Stage_url__c'     => $project->get_stage_url(),
+			'Prod_server__c'   => $project->get_prod_server(),
+			'reverse_proxy__c' => $project->get_reverse_proxy()
 		];
 
 		foreach ( $fields_to_save as $field => $value ) {
@@ -203,8 +204,11 @@ class InsightlyService {
 					case 'Hosting_note__c':
 						$project->set_hosting_notes( $custom_field->FIELD_VALUE );
 						break;
+					case 'Service_Agreement__c':
+						$project->set_service_agreement( $custom_field->FIELD_VALUE );
+						break;
 					default:
-						//print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
+						print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
 						break;
 				}
 

@@ -1,5 +1,7 @@
 <?php
 
+define( 'APP_VERSION', '1.2' );
+
 require( 'vendor/autoload.php' );
 require( 'config.php' );
 require( __DIR__ . '/includes/class-core.php' );
