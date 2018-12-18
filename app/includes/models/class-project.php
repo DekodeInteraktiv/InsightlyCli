@@ -16,6 +16,8 @@ class Project {
 	private $project_manager;
 	private $hosting_notes;
 	private $service_agreement;
+	private $hosting_level_agreement;
+	private $incidents_email_report_client;
 
 	/**
 	 * @return mixed
@@ -188,6 +190,34 @@ class Project {
 	 */
 	public function set_service_agreement( $service_agreement ) {
 		$this->service_agreement = $service_agreement;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_hosting_level_agreement() {
+		return $this->hosting_level_agreement;
+	}
+
+	/**
+	 * @param mixed $hosting_level_agreement
+	 */
+	public function set_hosting_level_agreement( $hosting_level_agreement ) {
+		$this->hosting_level_agreement = $hosting_level_agreement;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_incidents_email_report_client() {
+		return $this->incidents_email_report_client;
+	}
+
+	/**
+	 * @param mixed $incidents_email_report_client
+	 */
+	public function set_incidents_email_report_client( $incidents_email_report_client ) {
+		$this->incidents_email_report_client = $incidents_email_report_client;
 	}
 
 

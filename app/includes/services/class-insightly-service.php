@@ -207,8 +207,14 @@ class InsightlyService {
 					case 'Service_Agreement__c':
 						$project->set_service_agreement( $custom_field->FIELD_VALUE );
 						break;
+					case 'Hosting_level_agreement__c':
+						$project->set_hosting_level_agreement( $custom_field->FIELD_VALUE );
+						break;
+					case 'Incidents_email_report_client__c':
+						$project->set_incidents_email_report_client( $custom_field->FIELD_VALUE );
+						break;
 					default:
-						print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
+						//print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
 						break;
 				}
 
