@@ -18,6 +18,7 @@ class Project {
 	private $service_agreement;
 	private $hosting_level_agreement;
 	private $incidents_email_report_client;
+	private $web_root;
 
 	/**
 	 * @return mixed
@@ -149,6 +150,20 @@ class Project {
 		$this->prod_url = $prod_url;
 	}
 
+	/**
+	 * Returns the production URL without scheme and path.
+	 *
+	 * @return mixed
+	 */
+	public function get_prod_domain() {
+		$url = $this->get_prod_url();
+
+		$url = str_replace( 'http://', '', $url );
+		$url = str_replace( 'https://', '', $url );
+		$url = str_replace( '/', '', $url );
+
+		return $url;
+	}
 
 	/**
 	 * @return mixed
@@ -218,6 +233,20 @@ class Project {
 	 */
 	public function set_incidents_email_report_client( $incidents_email_report_client ) {
 		$this->incidents_email_report_client = $incidents_email_report_client;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_web_root() {
+		return $this->web_root;
+	}
+
+	/**
+	 * @param mixed $web_root
+	 */
+	public function set_web_root( $web_root ) {
+		$this->web_root = $web_root;
 	}
 
 

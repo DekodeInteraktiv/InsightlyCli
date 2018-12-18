@@ -3,6 +3,7 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\InsightlyService;
+use Dekode\InsightlyCli\Services\SSHService;
 
 class Find extends Command {
 
@@ -46,26 +47,22 @@ class Find extends Command {
 
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 
-		if ( isset( $this->get_arguments()[2] ) ) {
-			$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
-		} else {
+		if ( ! isset( $this->get_arguments()[2] ) ) {
 			$climate->error( 'No project specified.' );
 			exit;
 		}
 
-		if ( ! $project ) {
-			$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
+		$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 
-			if ( is_array( $similar_projects ) && count( $similar_projects ) ) {
-				$project = $similar_projects[0];
-			}
-
-			if ( ! $project ) {
-				$climate->error( 'No similar project was found.' );
-				exit;
-			}
-
+		if ( is_array( $similar_projects ) && count( $similar_projects ) ) {
+			$project = $similar_projects[0];
 		}
+
+		if ( ! $project ) {
+			$climate->error( 'No similar project was found.' );
+			exit;
+		}
+
 
 		$climate->green()->bold()->out( '-= ' . strtoupper( $project->get_name() ) . " =- \n" );
 		$climate->cyan( "ID:\t\t\t" . $project->get_id() );
@@ -78,6 +75,7 @@ class Find extends Command {
 		$climate->yellow( "Incidents report to:\t" . $project->get_incidents_email_report_client() . "\n" );
 
 		$climate->green( "SSH to prod:\t\t" . $project->get_ssh_to_prod() );
+		$climate->green( "Web root:\t\t" . $project->get_web_root() );
 		$climate->green( "Prod. server:\t\t" . $project->get_prod_server() );
 		$climate->green( "Reverse proxy:\t\t" . $project->get_reverse_proxy() );
 		$climate->green( "DB instance:\t\t" . $project->get_db_instance() . "\n" );
@@ -90,7 +88,6 @@ class Find extends Command {
 			$climate->white( 'Hosting notes:' );
 			$climate->white( $project->get_hosting_notes() );
 		}
-
 
 	}
 }

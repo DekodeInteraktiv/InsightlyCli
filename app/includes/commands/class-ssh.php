@@ -51,8 +51,8 @@ class SSH extends Command {
 			exit;
 		}
 
+		shell_exec( $project->get_ssh_to_prod() );
 
-		print( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
 
 	}
 }

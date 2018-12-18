@@ -4,7 +4,8 @@
     "require": {
         "guzzlehttp/guzzle": "^6.3",
         "league/climate": "^3.4",
-        "novutec/whoisparser": "^3.2"
+        "novutec/whoisparser": "^3.2",
+        "phpseclib/phpseclib": "^2.0"
     },
     "authors": [
         {

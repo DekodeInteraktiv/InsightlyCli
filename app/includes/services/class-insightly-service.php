@@ -53,7 +53,7 @@ class InsightlyService {
 	 *
 	 * @return mixed
 	 */
-	public function get_project_by_name( $name ) {
+	public function get_project_by_name( string $name ): Project {
 		$projects = $this->get_projects();
 		$name     = strtolower( $name );
 		foreach ( $projects as $project ) {
@@ -111,7 +111,8 @@ class InsightlyService {
 			'Prod_url__c'      => $project->get_prod_url(),
 			'Stage_url__c'     => $project->get_stage_url(),
 			'Prod_server__c'   => $project->get_prod_server(),
-			'reverse_proxy__c' => $project->get_reverse_proxy()
+			'reverse_proxy__c' => $project->get_reverse_proxy(),
+			'Web_root__c'      => $project->get_web_root()
 		];
 
 		foreach ( $fields_to_save as $field => $value ) {
@@ -212,6 +213,9 @@ class InsightlyService {
 						break;
 					case 'Incidents_email_report_client__c':
 						$project->set_incidents_email_report_client( $custom_field->FIELD_VALUE );
+						break;
+					case 'Web_root__c':
+						$project->set_web_root( $custom_field->FIELD_VALUE );
 						break;
 					default:
 						//print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );

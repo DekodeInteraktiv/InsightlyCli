@@ -18,6 +18,8 @@ require( __DIR__ . '/includes/services/class-insightly-service.php' );
 require( __DIR__ . '/includes/services/class-digital-ocean-service.php' );
 require( __DIR__ . '/includes/services/class-rackspace-service.php' );
 require( __DIR__ . '/includes/services/class-operating-system-service.php' );
+require( __DIR__ . '/includes/services/class-ssh-service.php' );
+require( __DIR__ . '/includes/services/class-net-service.php' );
 
 // Operating systems
 require( __DIR__ . '/includes/operating-systems/class-operating-system.php' );

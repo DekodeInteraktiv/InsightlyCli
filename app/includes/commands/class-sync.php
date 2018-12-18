@@ -4,11 +4,11 @@ namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Models\Project;
 use Dekode\InsightlyCli\Models\RackspaceLoadBalancer;
-use Dekode\InsightlyCli\Models\RackspaceServer;
 use Dekode\InsightlyCli\Services\DigitalOceanService;
 use Dekode\InsightlyCli\Services\InsightlyService;
+use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\RackspaceService;
-use League\CLImate\CLImate;
+use Dekode\InsightlyCli\Services\SSHService;
 
 class Sync extends Command {
 
@@ -54,7 +54,15 @@ class Sync extends Command {
 		$this->get_servers();
 
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$this->projects          = $this->insightly_service->get_projects();
+		$this->net_service       = new NetService();
+
+		$arguments = $this->get_arguments();
+		if ( isset( $arguments[2] ) ) {
+			$this->projects = [ $this->insightly_service->get_project_by_name( $arguments[2] ) ];
+		} else {
+
+			$this->projects = $this->insightly_service->get_projects();
+		}
 
 		$number_of_projects = count( $this->projects );
 		$i                  = 0;
@@ -152,7 +160,7 @@ class Sync extends Command {
 
 		$ip = $this->get_ip( $project );
 
-		if ( ! $this->is_ip( $ip ) ) {
+		if ( ! $this->net_service->is_ip( $ip ) ) {
 			$this->climate->error( 'IP could not be found' );
 
 			return;
@@ -164,7 +172,7 @@ class Sync extends Command {
 		if ( ! $server ) {
 			$this->climate->cyan( 'Server for that IP could not be found' );
 
-			$reverse_proxy = $this->find_reverse_proxy( $ip );
+			$reverse_proxy = $this->net_service->find_reverse_proxy( $ip );
 
 			if ( $reverse_proxy ) {
 				$this->climate->magenta( 'Found reverse proxy: "' . $reverse_proxy . '". Saving...' );
@@ -195,17 +203,26 @@ class Sync extends Command {
 			$ssh_host = $server->get_public_ip();
 		}
 
-		if ( $this->is_ip( $ssh_host ) ) {
-			$ssh_host = gethostbyaddr( $ssh_host );
-		}
-
 		$ssh = 'ssh root@' . $ssh_host;
 
 		$this->climate->cyan( 'Updating SSH to prod to "' . $ssh . '"' );
 		$this->climate->cyan( 'Setting production server name to "' . $server->get_insightly_name() . '"..."' );
+		$this->climate->cyan( 'Trying to find web root...' );
 
 		$project->set_ssh_to_prod( $ssh );
 		$project->set_prod_server( $server->get_insightly_name() );
+
+		try {
+			$ssh_service = new SSHService( $project );
+			$web_root    = $ssh_service->get_web_root();
+		} catch ( Exception $e ) {
+		}
+
+		if ( $web_root ) {
+			$this->climate->green( 'Found it: ' . $web_root );
+			$project->set_web_root( $web_root );
+		}
+
 		$this->insightly_service->save_project( $project );
 
 	}
@@ -297,37 +314,6 @@ class Sync extends Command {
 			print( "\n" );
 
 		}
-	}
-
-	private function find_reverse_proxy( $ip ) {
-		$parser = new \Novutec\WhoisParser\Parser();
-
-		$result = $parser->lookup( $ip );
-
-		$raw_data = current( $result->rawdata );
-
-		if ( stripos( $raw_data, 'sucuri' ) !== false ) {
-			return 'Sucuri';
-		}
-
-		if ( stripos( $raw_data, 'cloudflare' ) !== false ) {
-			return 'Cloudflare';
-		}
-
-		return false;
-
-
-	}
-
-	/**
-	 * Checks if the given string is an IPv4 address
-	 *
-	 * @param string $ip
-	 *
-	 * @return boolean
-	 */
-	private function is_ip( string $ip ): bool {
-		return preg_match( '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $ip );
 	}
 
 	/**
