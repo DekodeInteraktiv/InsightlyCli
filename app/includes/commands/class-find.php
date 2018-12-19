@@ -58,7 +58,7 @@ class Find extends Command {
 			$project = $similar_projects[0];
 		}
 
-		if ( ! $project ) {
+		if ( ! isset( $project ) ) {
 			$climate->error( 'No similar project was found.' );
 			exit;
 		}

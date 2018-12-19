@@ -10,8 +10,17 @@ class SSHService {
 
 	private $project;
 
+	/**
+	 * SSHService constructor.
+	 *
+	 * @param Project $project
+	 */
 	public function __construct( Project $project ) {
 		$ssh = $project->get_ssh_to_prod();
+		if ( ! $ssh ) {
+			throw new Exception( 'No SSH command found in project' );
+		}
+
 		$ssh = str_replace( 'ssh', '', $ssh );
 		$ssh = trim( $ssh );
 		list( $username, $host ) = explode( '@', $ssh );
@@ -28,6 +37,11 @@ class SSHService {
 
 	}
 
+	/**
+	 * Tries to find the web root of the project and returns it.
+	 *
+	 * @return bool|string
+	 */
 	public function get_web_root() {
 
 		$nginx_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
@@ -72,6 +86,34 @@ class SSHService {
 		}
 
 		return $return_value;
+
+	}
+
+	/**
+	 * Tries to find the database credentials and echos a database dump.
+	 */
+	public function output_database_dump() {
+		$web_root    = $this->get_web_root();
+		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
+
+		$config_file = explode( "\n", $config_file );
+
+		foreach ( $config_file as &$line ) {
+			$line = trim( $line );
+			if ( preg_match( '/^#/', $line ) || preg_match( '/^\/\//', $line ) ) {
+				$line = '';
+			}
+		}
+
+		foreach ( $config_file as $line ) {
+			if ( preg_match( '/define\(\s?\'(.*)?\',\s?\'(.*)?\'/', $line, $matches ) ) {
+
+				$config[ $matches[1] ] = $matches[2];
+			}
+		}
+		$this->ssh->setTimeout( 0 );
+		echo $this->ssh->exec( 'mysqldump -h ' . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] );
+
 
 	}
 
