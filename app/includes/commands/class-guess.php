@@ -57,7 +57,7 @@ class Guess extends Command {
 
 		$arguments = $this->get_arguments();
 		if ( isset( $arguments[2] ) ) {
-			$project = $this->insightly_service->get_project_by_name( $arguments[2] );
+			$project = $this->insightly_service->get_projects_by_name_similarity( $arguments[2] );
 			if ( ! $project ) {
 				$this->climate->error( 'Could not find that project.' );
 				exit;
@@ -71,7 +71,7 @@ class Guess extends Command {
 		$this->get_servers();
 
 
-		$this->projects = [ $project ];
+		$this->projects = [ $project[0] ];
 
 		$number_of_projects = count( $this->projects );
 		$i                  = 0;
@@ -95,7 +95,11 @@ class Guess extends Command {
 			$this->climate->output();
 			$this->climate->yellow( 'Server location: ' . $project->get_prod_server() );
 			$this->climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
-			$this->climate->yellow( $project->get_ssh_to_prod() );
+			$this->climate->output();
+
+			exec( 'alias isc-ssh="' . $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'\"" );
+
+			$this->climate->green( 'Type "isc-ssh" to run the above command.' );
 
 
 		}
