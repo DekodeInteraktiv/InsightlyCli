@@ -3,6 +3,8 @@
 namespace Dekode\InsightlyCli\Services;
 
 use Dekode\InsightlyCli\Models\Project;
+use GuzzleHttp\Client;
+use League\CLImate\CLImate;
 use phpseclib\Net\SSH2;
 use phpseclib\Crypt\RSA;
 
@@ -104,8 +106,6 @@ class SSHService {
 	public function get_db_credentials() {
 		$web_root = $this->get_web_root();
 
-		echo '# Web root found at ' . $web_root . "\n";
-
 		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
 
 		$config_file = explode( "\n", $config_file );
@@ -134,7 +134,7 @@ class SSHService {
 	/**
 	 * Echos a database dump.
 	 */
-	public function output_database_dump() {
+	public function show_database_dump_commands() {
 
 		$config = $this->get_db_credentials();
 
@@ -151,9 +151,19 @@ class SSHService {
 				throw new \Exception( $field . ' value not found in config file' );
 			}
 		}
-		$this->ssh->setTimeout( 0 );
-		echo $this->ssh->exec( 'mysqldump -h ' . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] );
 
+		$project = $this->get_project();
+
+		$climate = new CLImate();
+
+		$climate->yellow( 'Carefully check these three commands and then run them from your prompt:' );
+
+		$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\'' );
+
+		$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
+
+		$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .' );
+		$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\'' );
 
 	}
 

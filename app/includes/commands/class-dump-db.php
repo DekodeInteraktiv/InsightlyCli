@@ -77,7 +77,7 @@ class DumpDB extends Command {
 		}
 
 		$ssh_service = new SSHService( $project );
-		$ssh_service->output_database_dump();
+		$ssh_service->show_database_dump_commands();
 
 
 	}
