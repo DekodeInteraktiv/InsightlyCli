@@ -58,6 +58,14 @@ class RackspaceService {
 	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
 	public function get_servers() {
+		$tmp_filename = $this->get_servers_cache_file();
+		if ( file_exists( $tmp_filename ) && filemtime( $tmp_filename ) > time() - 60 * 60 * 24 * 7 ) {
+			$servers = unserialize( file_get_contents( $tmp_filename ) );
+
+			return $servers;
+		}
+
+
 		$results = $this->make_request( '/servers/detail' );
 		$servers = [];
 
@@ -70,6 +78,8 @@ class RackspaceService {
 
 		}
 
+		file_put_contents( $tmp_filename, serialize( $servers ) );
+
 		return $servers;
 
 	}
@@ -81,6 +91,14 @@ class RackspaceService {
 	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
 	public function get_load_balancers() {
+		$tmp_filename = $this->get_load_balancers_cache_file();
+		if ( file_exists( $tmp_filename ) && filemtime( $tmp_filename ) > time() - 60 * 60 * 24 * 7 ) {
+			$servers = unserialize( file_get_contents( $tmp_filename ) );
+
+			return $servers;
+		}
+
+
 		$url     = 'https://lon.loadbalancers.api.rackspacecloud.com/v1.0/' . $this->get_tenant_id();
 		$results = $this->make_request( '/loadbalancers', [ 'url' => $url ] );
 
@@ -106,6 +124,8 @@ class RackspaceService {
 
 			$load_balancers[] = $load_balancer;
 		}
+
+		file_put_contents( $tmp_filename, serialize( $load_balancers ) );
 
 		return $load_balancers;
 
@@ -169,6 +189,16 @@ class RackspaceService {
 		$body   = $res->getBody()->getContents();
 
 		return json_decode( $body );
+	}
+
+	private function get_servers_cache_file() {
+		return sys_get_temp_dir() . '/isc-rackspace-servers.cache';
+
+	}
+
+	private function get_load_balancers_cache_file() {
+		return sys_get_temp_dir() . '/isc-rackspace-load-balancers.cache';
+
 	}
 
 	/**

@@ -20,6 +20,14 @@ class DigitalOceanService {
 	}
 
 	public function get_servers() {
+		$tmp_filename = $this->get_servers_cache_file();
+		if ( file_exists( $tmp_filename ) && filemtime( $tmp_filename ) > time() - 60 * 60 * 24 * 7 ) {
+			$droplets = unserialize( file_get_contents( $tmp_filename ) );
+
+			return $droplets;
+		}
+
+
 		$result   = $this->make_request( '/droplets' );
 		$droplets = [];
 
@@ -31,6 +39,8 @@ class DigitalOceanService {
 			$droplets[] = $droplet;
 
 		}
+
+		file_put_contents( $tmp_filename, serialize( $droplets ) );
 
 		return $droplets;
 	}
@@ -62,6 +72,12 @@ class DigitalOceanService {
 
 		return json_decode( $body );
 	}
+
+	private function get_servers_cache_file() {
+		return sys_get_temp_dir() . '/isc-digital-ocean-servers.cache';
+
+	}
+
 
 	/**
 	 * @return string

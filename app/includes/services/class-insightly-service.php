@@ -53,7 +53,7 @@ class InsightlyService {
 	 *
 	 * @return mixed
 	 */
-	public function get_project_by_name( string $name ): Project {
+	public function get_project_by_name( string $name ): ?Project {
 		$projects = $this->get_projects();
 		$name     = strtolower( $name );
 		foreach ( $projects as $project ) {
@@ -62,6 +62,8 @@ class InsightlyService {
 				return $project;
 			}
 		}
+
+		return null;
 	}
 
 	/**

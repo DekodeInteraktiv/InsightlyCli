@@ -10,7 +10,7 @@ use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\RackspaceService;
 use Dekode\InsightlyCli\Services\SSHService;
 
-class Sync extends Command {
+class Guess extends Command {
 
 	private $servers;
 	private $report = [];
@@ -21,7 +21,7 @@ class Sync extends Command {
 	 * @return string
 	 */
 	public function get_key(): string {
-		return 'sync';
+		return 'guess';
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Sync extends Command {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Loops through all projects and tries to automatically update all fields.';
+		return 'Tries to guess some of the technical values for a project.';
 	}
 
 	/**
@@ -39,7 +39,7 @@ class Sync extends Command {
 	 * @return string
 	 */
 	public function get_help(): string {
-		$help = "Usage:\nisc " . $this->get_key() . "\n\n";
+		$help = "Usage:\nisc " . $this->get_key() . " <name of project>\n\n";
 
 		return $help;
 
@@ -51,43 +51,54 @@ class Sync extends Command {
 	public function run() {
 		$this->climate = $this->get_climate();
 
-		$this->get_servers();
 
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->net_service       = new NetService();
 
 		$arguments = $this->get_arguments();
 		if ( isset( $arguments[2] ) ) {
-			$this->projects = [ $this->insightly_service->get_project_by_name( $arguments[2] ) ];
-		} else {
+			$project = $this->insightly_service->get_project_by_name( $arguments[2] );
+			if ( ! $project ) {
+				$this->climate->error( 'Could not find that project.' );
+				exit;
+			}
 
-			$this->projects = $this->insightly_service->get_projects();
+		} else {
+			$this->climate->error( 'No project was specified.' );
+			exit;
 		}
+
+		$this->get_servers();
+
+
+		$this->projects = [ $project ];
 
 		$number_of_projects = count( $this->projects );
 		$i                  = 0;
+
 		foreach ( $this->projects as $project ) {
 			$i ++;
 			$this->climate->yellow( "\n" . '(' . $i . '/' . $number_of_projects . ') Working with ' . $project->get_name() );
 
 
 			if ( ! $project->get_prod_url() ) {
-				$this->try_alternative_urls_and_update_if_found( $project );
+				$this->try_alternative_urls( $project );
 
 				if ( ! $project->get_prod_url() ) {
 					$this->climate->error( 'Domain could not be guessed.' );
-					$this->report['invalid_host'][] = $project;
 					continue;
 				}
 			}
 
-			$this->find_production_server_and_update( $project );
+			$this->find_production_server( $project );
+
+			$this->climate->output();
+			$this->climate->yellow( 'Server location: ' . $project->get_prod_server() );
+			$this->climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
+			$this->climate->yellow( $project->get_ssh_to_prod() );
 
 
 		}
-
-		$this->output_report();
-
 
 	}
 
@@ -130,7 +141,7 @@ class Sync extends Command {
 	 *
 	 * @return array|null
 	 */
-	private function try_alternative_urls_and_update_if_found( Project $project ) {
+	private function try_alternative_urls( Project $project ) {
 		$url = 'https://' . $project->get_name();
 		$this->climate->error( 'Has no production URL. Trying name as domain: ' . $url );
 
@@ -143,9 +154,8 @@ class Sync extends Command {
 		}
 
 		if ( $response->getStatusCode() == 200 ) {
-			$this->climate->green( 'Page exists. Updating project and continuing.' );
+			$this->climate->green( 'Page exists.' );
 			$project->set_prod_url( $url );
-			$this->insightly_service->save_project( $project );
 		}
 
 	}
@@ -155,8 +165,8 @@ class Sync extends Command {
 	 *
 	 * @param Project $project
 	 */
-	private function find_production_server_and_update( Project $project ) {
-		$this->climate->green( 'Trying to find SSH command.' );
+	private function find_production_server( Project $project ) {
+		$this->climate->purple( 'Trying to find SSH command.' );
 
 		$ip = $this->get_ip( $project );
 
@@ -175,22 +185,16 @@ class Sync extends Command {
 			$reverse_proxy = $this->net_service->find_reverse_proxy( $ip );
 
 			if ( $reverse_proxy ) {
-				$this->climate->magenta( 'Found reverse proxy: "' . $reverse_proxy . '". Saving...' );
-				$project->set_reverse_proxy( $reverse_proxy );
-				$this->insightly_service->save_project( $project );
+				$this->climate->red( 'Found reverse proxy: "' . $reverse_proxy . '". Giving up.' );
+				exit;
 
 				return;
 
 			}
 
 
-			$this->climate->cyan( 'Setting production server name to "other"...' );
-			$project->set_prod_server( 'Other' );
-			$this->insightly_service->save_project( $project );
-
-			$this->report['unknown_server'][] = $project;
-
-			return;
+			$this->climate->red( 'Giving up since we could not find server.' );
+			exit;
 		}
 
 		$this->climate->green( 'Host ' . $server->get_name() . ' found.' );
@@ -205,8 +209,8 @@ class Sync extends Command {
 
 		$ssh = 'ssh root@' . $ssh_host;
 
-		$this->climate->cyan( 'Updating SSH to prod to "' . $ssh . '"' );
-		$this->climate->cyan( 'Setting production server name to "' . $server->get_insightly_name() . '"..."' );
+		$this->climate->green( 'SSH command: "' . $ssh . '"' );
+		$this->climate->green( 'Production server name: "' . $server->get_insightly_name() . '"..."' );
 		$this->climate->cyan( 'Trying to find web root...' );
 
 		$project->set_ssh_to_prod( $ssh );
@@ -216,15 +220,13 @@ class Sync extends Command {
 			$ssh_service = new SSHService( $project );
 			$web_root    = $ssh_service->get_web_root();
 		} catch ( Exception $e ) {
+			$this->report['could_not_ssh'][] = $project;
 		}
 
 		if ( $web_root ) {
 			$this->climate->green( 'Found it: ' . $web_root );
 			$project->set_web_root( $web_root );
 		}
-
-		$this->insightly_service->save_project( $project );
-
 	}
 
 	/**

@@ -33,7 +33,7 @@ require( __DIR__ . '/includes/commands/class-ssh.php' );
 require( __DIR__ . '/includes/commands/class-rebuild-cache.php' );
 require( __DIR__ . '/includes/commands/class-update.php' );
 require( __DIR__ . '/includes/commands/class-browse.php' );
-require( __DIR__ . '/includes/commands/class-sync.php' );
+require( __DIR__ . '/includes/commands/class-guess.php' );
 
 
 $core = new \Dekode\InsightlyCli\Core( [
@@ -42,7 +42,7 @@ $core = new \Dekode\InsightlyCli\Core( [
 	new \Dekode\InsightlyCli\Commands\ClearCache(),
 	new \Dekode\InsightlyCli\Commands\Update(),
 	new \Dekode\InsightlyCli\Commands\Browse(),
-	new \Dekode\InsightlyCli\Commands\Sync()
+	new \Dekode\InsightlyCli\Commands\Guess()
 ] );
 
 if ( $argv[0] == 'php' ) {
