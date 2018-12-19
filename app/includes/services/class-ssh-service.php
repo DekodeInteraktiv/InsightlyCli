@@ -58,15 +58,22 @@ class SSHService {
 				$port = $matches[1];
 			}
 
+			// Apache
 			if ( preg_match( '/<VirtualHost \*\:(\d{1,3})\>/', $line, $matches ) ) {
 				$port = $matches[1];
+			}
+
+			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ';' ) ) {
+				$found_domain = true;
 			}
 
 			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ' ' ) ) {
 				$found_domain = true;
 			}
 
+
 			if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
+
 				$line           = str_replace( 'root', '', $line );
 				$line           = str_replace( 'DocumentRoot', '', $line );
 				$line           = str_replace( ';', '', $line );
@@ -90,10 +97,15 @@ class SSHService {
 	}
 
 	/**
-	 * Tries to find the database credentials and echos a database dump.
+	 * Returns username, password, DB name and host for database, if we can find it.
+	 *
+	 * @return array
 	 */
-	public function output_database_dump() {
-		$web_root    = $this->get_web_root();
+	public function get_db_credentials() {
+		$web_root = $this->get_web_root();
+
+		echo '# Web root found at ' . $web_root . "\n";
+
 		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
 
 		$config_file = explode( "\n", $config_file );
@@ -105,10 +117,38 @@ class SSHService {
 			}
 		}
 
+		$config = [];
+
 		foreach ( $config_file as $line ) {
-			if ( preg_match( '/define\(\s?\'(.*)?\',\s?\'(.*)?\'/', $line, $matches ) ) {
+
+			if ( preg_match( '/define\(\s?\'(.*)?\',\s?\'(.*)?(.*)\'\s?\)/', $line, $matches ) ) {
 
 				$config[ $matches[1] ] = $matches[2];
+			}
+		}
+
+		return $config;
+
+	}
+
+	/**
+	 * Echos a database dump.
+	 */
+	public function output_database_dump() {
+
+		$config = $this->get_db_credentials();
+
+		$required_fields = [
+			'DB_HOST',
+			'DB_USER',
+			'DB_PASSWORD',
+			'DB_NAME'
+		];
+
+		foreach ( $required_fields as $field ) {
+
+			if ( ! isset( $config[ $field ] ) ) {
+				throw new \Exception( $field . ' value not found in config file' );
 			}
 		}
 		$this->ssh->setTimeout( 0 );
