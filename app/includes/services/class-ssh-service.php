@@ -107,6 +107,7 @@ class SSHService {
 		$web_root = $this->get_web_root();
 
 		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
+		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/../.env' );
 
 		$config_file = explode( "\n", $config_file );
 
@@ -117,15 +118,20 @@ class SSHService {
 			}
 		}
 
-		$config = [];
+		$config = [ 'DB_HOST' => 'localhost' ];
 
 		foreach ( $config_file as $line ) {
 
 			if ( preg_match( '/define\(\s?\'(.*)?\',\s?\'(.*)?(.*)\'\s?\)/', $line, $matches ) ) {
+				$config[ $matches[1] ] = $matches[2];
+			}
+			if ( preg_match( '/^([A-Z_]*)\=(.*)$/', $line, $matches ) ) {
 
 				$config[ $matches[1] ] = $matches[2];
 			}
+
 		}
+
 
 		return $config;
 
@@ -158,12 +164,12 @@ class SSHService {
 
 		$climate->yellow( 'Carefully check these three commands and then run them from your prompt:' );
 
-		$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\'' );
+		$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
 
 		$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
 
-		$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .' );
-		$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\'' );
+		$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
+		$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
 
 	}
 

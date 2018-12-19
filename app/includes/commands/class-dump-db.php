@@ -12,9 +12,6 @@ use Dekode\InsightlyCli\Services\SSHService;
 
 class DumpDB extends Command {
 
-	private $servers;
-
-
 	/**
 	 * Returns the string used to run this command.
 	 *
@@ -32,7 +29,7 @@ class DumpDB extends Command {
 	public function get_description(): string {
 		$climate = $this->get_climate();
 
-		$climate->yellow( 'Will try to dump an SQL database export to stdout.' );
+		$climate->yellow()->inline( 'Will try to dump an SQL database export to stdout.' );
 
 		return '';
 
