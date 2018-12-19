@@ -73,6 +73,10 @@ class SSHService {
 				$found_domain = true;
 			}
 
+			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
+				$found_domain = true;
+			}
+
 
 			if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
 
@@ -81,6 +85,7 @@ class SSHService {
 				$line           = str_replace( ';', '', $line );
 				$line           = trim( $line );
 				$found_web_root = true;
+
 
 				break;
 			}
@@ -111,6 +116,7 @@ class SSHService {
 
 		$config_file = explode( "\n", $config_file );
 
+
 		foreach ( $config_file as &$line ) {
 			$line = trim( $line );
 			if ( preg_match( '/^#/', $line ) || preg_match( '/^\/\//', $line ) ) {
@@ -132,44 +138,7 @@ class SSHService {
 
 		}
 
-
 		return $config;
-
-	}
-
-	/**
-	 * Echos a database dump.
-	 */
-	public function show_database_dump_commands() {
-
-		$config = $this->get_db_credentials();
-
-		$required_fields = [
-			'DB_HOST',
-			'DB_USER',
-			'DB_PASSWORD',
-			'DB_NAME'
-		];
-
-		foreach ( $required_fields as $field ) {
-
-			if ( ! isset( $config[ $field ] ) ) {
-				throw new \Exception( $field . ' value not found in config file' );
-			}
-		}
-
-		$project = $this->get_project();
-
-		$climate = new CLImate();
-
-		$climate->yellow( 'Carefully check these three commands and then run them from your prompt:' );
-
-		$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
-
-		$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
-
-		$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
-		$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
 
 	}
 
