@@ -37,6 +37,7 @@ class Update extends Command {
 		$help .= "ssh-to-prod\tUpdates the field \"SSH to prod\"" . "\n";
 		$help .= "prod-url\tUpdates the URL for the production server." . "\n";
 		$help .= "stage-url\tUpdates the URL for the stage server." . "\n";
+		$help .= "prod-server\tUpdates the name of the production server (eg. prod06, ServeBolt etc)" . "\n";
 
 		return $help;
 
@@ -99,6 +100,8 @@ class Update extends Command {
 		}
 
 		$insightly_service->save_project( $project );
+		$insightly_service->clear_cache();
+		$insightly_service->get_projects();
 		$climate->green( 'Project updated.' );
 	}
 

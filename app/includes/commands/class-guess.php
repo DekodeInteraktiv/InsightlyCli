@@ -97,11 +97,6 @@ class Guess extends Command {
 			$this->climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
 			$this->climate->output();
 
-			exec( 'alias isc-ssh="' . $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'\"" );
-
-			$this->climate->green( 'Type "isc-ssh" to run the above command.' );
-
-
 		}
 
 	}
