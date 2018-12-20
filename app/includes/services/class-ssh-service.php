@@ -46,60 +46,64 @@ class SSHService {
 	 */
 	public function get_web_root() {
 
-		$nginx_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
-		$nginx_conf_files .= $this->ssh->exec( 'cat /etc/apache2/sites-enabled/*' );
-		$nginx_conf_lines = explode( "\n", $nginx_conf_files );
+		if ( ! isset( $this->web_root ) ) {
 
-		$found_domain   = false;
-		$found_web_root = false;
-		$port           = false;
+			$nginx_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
+			$nginx_conf_files .= $this->ssh->exec( 'cat /etc/apache2/sites-enabled/*' );
+			$nginx_conf_lines = explode( "\n", $nginx_conf_files );
 
-		foreach ( $nginx_conf_lines as $line ) {
-			// Nginx
-			if ( preg_match( '/listen (\d{2,3})/', $line, $matches ) ) {
-				$port = $matches[1];
+			$found_domain   = false;
+			$found_web_root = false;
+			$port           = false;
+			$line           = false;
+
+			foreach ( $nginx_conf_lines as $line ) {
+				// Nginx
+				if ( preg_match( '/listen (\d{2,3})/', $line, $matches ) ) {
+					$port = $matches[1];
+				}
+
+				// Apache
+				if ( preg_match( '/<VirtualHost \*\:(\d{1,3})\>/', $line, $matches ) ) {
+					$port = $matches[1];
+				}
+
+				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ';' ) ) {
+					$found_domain = true;
+				}
+
+				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ' ' ) ) {
+					$found_domain = true;
+				}
+
+				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
+					$found_domain = true;
+				}
+
+
+				if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
+
+					$line           = str_replace( 'root', '', $line );
+					$line           = str_replace( 'DocumentRoot', '', $line );
+					$line           = str_replace( ';', '', $line );
+					$line           = trim( $line );
+					$found_web_root = true;
+
+
+					break;
+				}
+
+
 			}
 
-			// Apache
-			if ( preg_match( '/<VirtualHost \*\:(\d{1,3})\>/', $line, $matches ) ) {
-				$port = $matches[1];
+			if ( $found_web_root ) {
+				$this->web_root = $line;
+			} else {
+				$this->web_root = false;
 			}
-
-			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ';' ) ) {
-				$found_domain = true;
-			}
-
-			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() . ' ' ) ) {
-				$found_domain = true;
-			}
-
-			if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
-				$found_domain = true;
-			}
-
-
-			if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
-
-				$line           = str_replace( 'root', '', $line );
-				$line           = str_replace( 'DocumentRoot', '', $line );
-				$line           = str_replace( ';', '', $line );
-				$line           = trim( $line );
-				$found_web_root = true;
-
-
-				break;
-			}
-
-
 		}
 
-		if ( $found_web_root ) {
-			$return_value = $line;
-		} else {
-			$return_value = false;
-		}
-
-		return $return_value;
+		return $this->web_root;
 
 	}
 
@@ -140,6 +144,12 @@ class SSHService {
 
 		return $config;
 
+	}
+
+	public function get_file_owner() {
+		$owner = $this->ssh->exec( "stat -c '%U' " . $this->get_web_root() );
+
+		return trim( $owner );
 	}
 
 	/**

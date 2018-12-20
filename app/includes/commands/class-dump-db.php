@@ -29,7 +29,7 @@ class DumpDB extends Command {
 	public function get_description(): string {
 		$climate = $this->get_climate();
 
-		$climate->yellow()->inline( 'Will try to dump an SQL database export to stdout.' );
+		$climate->inline( 'Will give you the commands you need to run to get a database dump either for yourself or someone else.' );
 
 		return '';
 
@@ -43,10 +43,11 @@ class DumpDB extends Command {
 	 */
 	public function get_help(): string {
 		$climate = $this->get_climate();
-		$climate->yellow( "Usage:\nisc " . $this->get_key() . " <name of project> > ~/file.sql" );
+		$climate->green( "Usage:\nisc " . $this->get_key() . " <name of project>" );
 		$climate->output();
-
-		$climate->red( 'There may be some command line errors at the top of the dump. They must be removed manually.' );
+		$climate->cyan( "Flags:" );
+		$climate->green()->inline( "   --share\t" );
+		$climate->yellow( 'Puts the dump in the web root and gives you a link you can send to another developer.' );
 
 		return '';
 
@@ -92,16 +93,52 @@ class DumpDB extends Command {
 		}
 
 		$climate = $this->get_climate();
-		$climate->yellow( 'Carefully check these three commands and then run them from your prompt:' );
+		$climate->yellow( 'Carefully check these commands and then run them from your prompt:' );
 
-		$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
+		$arguments = $this->get_arguments();
 
-		$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
+		$web_root = $ssh_service->get_web_root();
 
-		$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
-		$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
+		if ( array_key_exists( 'share', $arguments ) ) {
+			$filename = $this->generate_random_string( 32 ) . ".sql";
+			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $web_root . '/' . $filename . "';" );
+
+			/*$php_code = '<?php unlink( __DIR__ . \"/' . $filename . '\"); unlink(__FILE__); echo \"Dump deleted\"; ?>';*/
+
+			//$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
+			$climate->green( $project->get_ssh_to_prod() . " 'chown www-data:www-data " . $web_root . '/' . $filename . "';" );
+			$climate->green( $project->get_ssh_to_prod() . " 'chown www-data:www-data " . $web_root . '/delete_dump.php\';' );
+			$climate->output();
+
+			$climate->yellow( 'When the  commands have been run, send this message to the person receiving the dump:' );
+			$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $project->get_prod_url() . '/' . $filename . '. When you have downloaded it, please tell me so I can delete it again.' );
+
+			$climate->output();
+			$climate->yellow( 'When the dump has been downloaded, run this command' );
+			$climate->green( $project->get_ssh_to_prod() . " 'rm " . $web_root . '/' . $filename . "';" );
 
 
+		} else {
+
+			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' - u ' . $config['DB_USER'] . ' - p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . ' . sql\';' );
+
+			$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
+
+			$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
+			$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
+		}
+
+	}
+
+	private function generate_random_string( $length ) {
+		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$characters_length = strlen( $characters );
+		$random_string     = '';
+		for ( $i = 0; $i < $length; $i ++ ) {
+			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
+		}
+
+		return $random_string;
 	}
 
 

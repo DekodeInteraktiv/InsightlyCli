@@ -54,6 +54,8 @@ abstract class Command {
 					$flag = str_replace( '--', '', $flag );
 
 					$arguments[ $flag ] = $value;
+
+
 				} else {
 					$flag               = str_replace( '--', '', $argument );
 					$arguments[ $flag ] = null;
