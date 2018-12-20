@@ -88,13 +88,15 @@ class Core {
 
 
 		foreach ( $this->get_commands() as $command ) {
-			$climate->green()->inline( ' ' . $command->get_key() . "\t\t\t" );
-			echo $command->get_description() . "\n";
+			$spaces = 20 - strlen( $command->get_key() );
+
+			$climate->green()->inline( ' ' . $command->get_key() . str_repeat( ' ', $spaces ) );
+			$climate->lightBlue( $command->get_description() );
 		}
 
 		echo "\n";
-		echo "Get more detailed help on a command by typing\n";
-		echo "  isc help <name of command>\n";
+		$climate->cyan( "Get more detailed help on a command by typing" );
+		$climate->cyan( "  isc help <name of command>" );
 		echo "\n";
 	}
 

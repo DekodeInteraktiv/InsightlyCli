@@ -22,11 +22,7 @@ class DumpDB extends Command {
 	 * @return string
 	 */
 	public function get_description(): string {
-		$climate = $this->get_climate();
-
-		$climate->inline( 'Will give you the commands you need to run to get a database dump either for yourself or someone else.' );
-
-		return '';
+		return 'Will give you the commands you need to run to get a database dump either for yourself or someone else.';
 
 
 	}
