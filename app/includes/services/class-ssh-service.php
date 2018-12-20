@@ -121,6 +121,20 @@ class SSHService {
 	}
 
 	/**
+	 * Tries to find the path to the project's uploads folder.
+	 *
+	 * @return string
+	 */
+	public function get_uploads_url() {
+		$web_root       = $this->get_web_root();
+		$uploads_folder = $this->get_uploads_folder();
+		$uploads_path   = str_replace( $web_root, '', $uploads_folder );
+
+		return $this->get_project()->get_prod_url() . $uploads_path;
+
+	}
+
+	/**
 	 * Returns username, password, DB name and host for database, if we can find it.
 	 *
 	 * @return array

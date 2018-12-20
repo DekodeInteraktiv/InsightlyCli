@@ -97,24 +97,35 @@ class DumpDB extends Command {
 
 		$arguments = $this->get_arguments();
 
-		$web_root = $ssh_service->get_web_root();
+		$uploads_folder = $ssh_service->get_uploads_folder();
+		$web_root       = $ssh_service->get_web_root();
 
 		if ( array_key_exists( 'share', $arguments ) ) {
 			$filename = $this->generate_random_string( 32 ) . ".sql";
-			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $web_root . '/' . $filename . "';" );
+			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $uploads_folder . '/' . $filename . "';" );
 
-			// My attempt at making a link so the person who receives the dump can delete it himself.
-			/*$php_code = '<?php unlink( __DIR__ . \"/' . $filename . '\"); unlink(__FILE__); echo \"Dump deleted\"; ?>';*/
-			//$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
+			$php_code = '
+			<?php 
+			if ( !file_exists( "' . $uploads_folder . '/' . $filename . '" ) ) {
+				echo "Dump already gone.";
+			} else {
+				unlink( "' . $uploads_folder . '/' . $filename . '" ); 
+				
+				var_dump( error_get_last() );
+				echo "<br>";
+			
+				echo "If you see no errors above, the dump has been deleted.";
+			} 
+			?>';
+
+
+			$php_code = addslashes( str_replace( "\n", '', str_replace( "\t", '', $php_code ) ) );
+
+			$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
 			$climate->output();
 
 			$climate->yellow( 'When the  commands have been run, send this message to the person receiving the dump:' );
-			$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $project->get_prod_url() . '/' . $filename . '. When you have downloaded it, please tell me so I can delete it again.' );
-
-			$climate->output();
-			$climate->yellow( 'When the dump has been downloaded, run this command' );
-			$climate->green( $project->get_ssh_to_prod() . " 'rm " . $web_root . '/' . $filename . "';" );
-
+			$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $ssh_service->get_uploads_url() . '/' . $filename . '. When you have downloaded it, please go to ' . $project->get_prod_url() . '/delete_dump.php to delete it.' );
 
 		} else {
 
