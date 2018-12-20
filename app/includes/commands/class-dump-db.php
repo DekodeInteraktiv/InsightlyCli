@@ -103,11 +103,9 @@ class DumpDB extends Command {
 			$filename = $this->generate_random_string( 32 ) . ".sql";
 			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $web_root . '/' . $filename . "';" );
 
+			// My attempt at making a link so the person who receives the dump can delete it himself.
 			/*$php_code = '<?php unlink( __DIR__ . \"/' . $filename . '\"); unlink(__FILE__); echo \"Dump deleted\"; ?>';*/
-
 			//$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
-			$climate->green( $project->get_ssh_to_prod() . " 'chown www-data:www-data " . $web_root . '/' . $filename . "';" );
-			$climate->green( $project->get_ssh_to_prod() . " 'chown www-data:www-data " . $web_root . '/delete_dump.php\';' );
 			$climate->output();
 
 			$climate->yellow( 'When the  commands have been run, send this message to the person receiving the dump:' );

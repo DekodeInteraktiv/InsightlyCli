@@ -108,6 +108,19 @@ class SSHService {
 	}
 
 	/**
+	 * Tries to find the path to the project's uploads folder.
+	 *
+	 * @return string
+	 */
+	public function get_uploads_folder() {
+		$web_root       = $this->get_web_root();
+		$uploads_folder = $this->ssh->exec( 'find ' . $web_root . ' -name uploads' );
+
+		return trim( $uploads_folder );
+
+	}
+
+	/**
 	 * Returns username, password, DB name and host for database, if we can find it.
 	 *
 	 * @return array
@@ -146,6 +159,11 @@ class SSHService {
 
 	}
 
+	/**
+	 * Returns the username of the linux user who owns the web root.
+	 *
+	 * @return string
+	 */
 	public function get_file_owner() {
 		$owner = $this->ssh->exec( "stat -c '%U' " . $this->get_web_root() );
 
