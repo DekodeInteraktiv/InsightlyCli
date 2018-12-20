@@ -2,6 +2,8 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
+use Dekode\InsightlyCli\Services\InsightlyService;
+
 abstract class Command {
 	private $arguments;
 
@@ -45,7 +47,7 @@ abstract class Command {
 	}
 
 
-	private function parse_flags( $arguments ) {
+	protected function parse_flags( $arguments ) {
 		foreach ( $arguments as $argument ) {
 			if ( strpos( $argument, '--' ) === 0 ) {
 				if ( strpos( $argument, '=' ) !== false ) {
@@ -64,6 +66,18 @@ abstract class Command {
 		}
 
 		return $arguments;
+	}
+
+	protected function show_similar_projects( $project_name ) {
+		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
+		$climate           = $this->get_climate();
+		$projects          = $insightly_service->get_projects_by_name_similarity( $project_name );
+
+		$climate->yellow( 'Did you mean any of these projects?' );
+
+		foreach ( $projects as $project ) {
+			$climate->green( '   ' . $project->get_name() );
+		}
 	}
 
 	/**

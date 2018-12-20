@@ -21,7 +21,7 @@ class SSH extends Command {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Get the first parameter for ssh.';
+		return 'Returns the command needed to SSH to this site.';
 	}
 
 	/**
@@ -31,8 +31,6 @@ class SSH extends Command {
 	 */
 	public function get_help(): string {
 		$help = "Usage:\nisc ssh <name of project>\n\n";
-		$help .= "Examples:\n";
-		$help .= 'ssh $(isc ssh finansforbundet.no)' . "\n";
 
 		return $help;
 
@@ -43,15 +41,25 @@ class SSH extends Command {
 	 */
 	public function run() {
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$project           = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
+		$projects          = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 		$climate           = $this->get_climate();
 
-		if ( ! $project ) {
-			$climate->error( 'That project could not be found.' );
+		if ( ! $projects[0] ) {
+			$climate->error( 'No similar project could be found.' );
+
 			exit;
 		}
 
-		shell_exec( $project->get_ssh_to_prod() );
+		$project = $projects[0];
+
+		$climate->green( 'Found ' . $project->get_name() );
+
+		if ( $project->get_web_root() ) {
+			$climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
+		} else {
+			$climate->yellow( $project->get_ssh_to_prod() );
+
+		}
 
 
 	}

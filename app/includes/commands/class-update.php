@@ -59,6 +59,9 @@ class Update extends Command {
 
 		if ( ! $project ) {
 			$climate->error( 'That project could not be found.' );
+			$this->climate->output();
+			$this->show_similar_projects( $this->get_arguments()[2] );
+
 			exit;
 		}
 
@@ -90,6 +93,13 @@ class Update extends Command {
 			if ( $this->confirm( $project->get_prod_server(), $arguments['prod-server'], 'The name of the production server' ) ) {
 				$fields_to_update = true;
 				$project->set_prod_server( $arguments['prod-server'] );
+			};
+		}
+
+		if ( isset( $arguments['web-root'] ) ) {
+			if ( $this->confirm( $project->get_web_root(), $arguments['web-root'], 'The project\'s web root' ) ) {
+				$fields_to_update = true;
+				$project->set_web_root( $arguments['web-root'] );
 			};
 		}
 

@@ -2,12 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Models\Project;
-use Dekode\InsightlyCli\Models\RackspaceLoadBalancer;
-use Dekode\InsightlyCli\Services\DigitalOceanService;
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\NetService;
-use Dekode\InsightlyCli\Services\RackspaceService;
 use Dekode\InsightlyCli\Services\SSHService;
 
 class DumpDB extends Command {
@@ -66,6 +61,8 @@ class DumpDB extends Command {
 			$project = $this->insightly_service->get_project_by_name( $arguments[2] );
 			if ( ! $project ) {
 				$this->climate->error( 'Could not find that project.' );
+				$this->climate->output();
+				$this->show_similar_projects( $arguments[2] );
 				exit;
 			}
 
