@@ -144,6 +144,7 @@ class SSHService {
 
 		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
 		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/../.env' );
+		$config_file .= $this->ssh->exec( 'cat ~/config.php' ); // Servebolt
 
 		$config_file = explode( "\n", $config_file );
 
