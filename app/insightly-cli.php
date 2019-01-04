@@ -35,6 +35,7 @@ require( __DIR__ . '/includes/commands/class-update.php' );
 require( __DIR__ . '/includes/commands/class-browse.php' );
 require( __DIR__ . '/includes/commands/class-guess.php' );
 require( __DIR__ . '/includes/commands/class-dump-db.php' );
+require( __DIR__ . '/includes/commands/class-access-db.php' );
 
 
 $core = new \Dekode\InsightlyCli\Core( [
@@ -44,7 +45,8 @@ $core = new \Dekode\InsightlyCli\Core( [
 	new \Dekode\InsightlyCli\Commands\Update(),
 	new \Dekode\InsightlyCli\Commands\Browse(),
 	new \Dekode\InsightlyCli\Commands\Guess(),
-	new \Dekode\InsightlyCli\Commands\DumpDB()
+	new \Dekode\InsightlyCli\Commands\DumpDB(),
+	new \Dekode\InsightlyCli\Commands\AccessDb()
 ] );
 
 if ( $argv[0] == 'php' ) {
