@@ -59,8 +59,7 @@ class AccessDb extends Command {
 
 		$db_credentials = $ssh_service->get_db_credentials();
 
-
-		$climate->yellow( 'mysql -h ' . $db_credentials['DB_HOST'] . ' -u ' . $db_credentials['DB_USER'] . ' -p' . $db_credentials['DB_PASSWORD'] . ' ' . $db_credentials['DB_NAME'] );
+		$climate->yellow( $project->get_ssh_to_prod() . ' -t \'mysql -h ' . $db_credentials['DB_HOST'] . ' -u ' . $db_credentials['DB_USER'] . ' -p' . $db_credentials['DB_PASSWORD'] . ' ' . $db_credentials['DB_NAME'] . '\'' );
 
 
 	}
