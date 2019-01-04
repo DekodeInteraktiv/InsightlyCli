@@ -32,12 +32,13 @@ class Update extends Command {
 	 */
 	public function get_help(): string {
 		$help = "Usage:\n";
-		$help .= "isc update <name of project> --ssh-to-prod=\"ssh root@somedomain\"\n\n";
+		$help .= "isc update <name of project> --ssh-to-prod=\"ssh root@somedomain\" <other flags>\n\n";
 		$help .= "Flags:\n";
-		$help .= "ssh-to-prod\tUpdates the field \"SSH to prod\"" . "\n";
-		$help .= "prod-url\tUpdates the URL for the production server." . "\n";
-		$help .= "stage-url\tUpdates the URL for the stage server." . "\n";
 		$help .= "prod-server\tUpdates the name of the production server (eg. prod06, ServeBolt etc)" . "\n";
+		$help .= "prod-url\tUpdates the URL for the production server." . "\n";
+		$help .= "ssh-to-prod\tUpdates the field \"SSH to prod\"" . "\n";
+		$help .= "stage-url\tUpdates the URL for the stage server." . "\n";
+		$help .= "web-root\tUpdates the web root of this project." . "\n";
 
 		return $help;
 
