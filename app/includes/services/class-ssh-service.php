@@ -20,7 +20,7 @@ class SSHService {
 	public function __construct( Project $project ) {
 		$ssh = $project->get_ssh_to_prod();
 		if ( ! $ssh ) {
-			throw new Exception( 'No SSH command found in project' );
+			throw new \Exception( 'No SSH command found in project' );
 		}
 
 		$ssh = str_replace( 'ssh', '', $ssh );
@@ -31,7 +31,7 @@ class SSHService {
 		$key = new RSA();
 		$key->loadKey( file_get_contents( getenv( 'HOME' ) . '/.ssh/id_rsa' ) );
 		if ( ! $ssh->login( $username, $key ) ) {
-			throw new Exception( 'Login failed' );
+			throw new \Exception( 'Login failed' );
 		}
 
 		$this->set_project( $project );

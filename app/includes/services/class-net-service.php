@@ -24,6 +24,24 @@ class NetService {
 
 	}
 
+	public function guess_provider_by_ip( $ip ) {
+		$client = new \GuzzleHttp\Client();
+		$res    = $client->request( 'GET', 'http://rest.db.ripe.net/search.json?query-string=' . $ip );
+		$body   = json_decode( $res->getBody()->getContents() );
+
+		foreach ( $body->objects->object as $object ) {
+			if ( $object->type == 'organisation' ) {
+				foreach ( $object->attributes->attribute as $attribute ) {
+					if ( $attribute->name == 'org-name' ) {
+						return ( $attribute->value );
+					}
+				}
+			}
+
+		}
+
+	}
+
 	/**
 	 * Checks if the given string is an IPv4 address
 	 *

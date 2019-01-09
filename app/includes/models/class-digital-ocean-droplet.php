@@ -12,4 +12,9 @@ class DigitalOceanDroplet extends Server {
 		return 'Digital Ocean';
 	}
 
+	public function get_provider_name() {
+		return 'Digital Ocean';
+	}
+
+
 }

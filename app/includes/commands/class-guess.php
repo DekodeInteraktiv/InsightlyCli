@@ -51,7 +51,6 @@ class Guess extends Command {
 	public function run() {
 		$this->climate = $this->get_climate();
 
-
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->net_service       = new NetService();
 
@@ -66,50 +65,111 @@ class Guess extends Command {
 
 		$original_project = clone $project;
 
+		$this->climate->yellow( 'Getting all servers...' );
 		$this->get_servers();
 
-		$this->projects = [ $project ];
+		$this->climate->yellow( "\n" . 'Working with ' . $project->get_name() );
 
-		$number_of_projects = count( $this->projects );
-		$i                  = 0;
+		$prod_url = $this->guess_prod_url( $project );
+		$project->set_prod_url( $prod_url );
+		$this->climate->green( 'Guessing that prod URL is: ' . $prod_url );
 
-		foreach ( $this->projects as $project ) {
-			$i ++;
-			$this->climate->yellow( "\n" . '(' . $i . '/' . $number_of_projects . ') Working with ' . $project->get_name() );
+		$ip = $this->get_ip( $project );
+		if ( ! $this->net_service->is_ip( $ip ) ) {
+			$this->climate->red( 'Could not find IP address' );
+
+		}
 
 
-			if ( ! $project->get_prod_url() ) {
-				$this->try_alternative_urls( $project );
+		$this->climate->green( 'Guessing that IP address is ' . $ip );
 
-				if ( ! $project->get_prod_url() ) {
-					$this->climate->error( 'Domain could not be guessed.' );
-					continue;
-				}
+		$server = $this->guess_production_server( $ip );
+
+		if ( $server['status'] == 0 ) {
+			$provider = $this->net_service->guess_provider_by_ip( $ip );
+
+			if ( $provider ) {
+				$this->climate->green( 'Guessing external provider: ' . $provider );
+			} else {
+				$this->climate->red( 'Not able to guess server. Reason: ' . $server['message'] );
 			}
+		} else {
+			$server = $server['server'];
+			$this->climate->green( 'Guessing that server is located at ' . $server->get_provider_name() . ' / ' . $server->get_insightly_name() );
+		}
 
-			$this->find_production_server( $project );
+		$this->climate->green()->inline( 'Testing if SSH in Insightly works...' );
 
-			$this->climate->output();
-			$this->climate->yellow( 'Server location: ' . $project->get_prod_server() );
-			$this->climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
-			$this->climate->output();
+		$ssh_failed = false;
+		try {
+			@$ssh_service = new SSHService( $project );
+			$this->climate->green( 'success' );
+		} catch ( \Exception $e ) {
+			$this->climate->red( 'failed' );
+			$ssh_failed = true;
 
-			if ( ! $original_project->get_web_root() ) {
-				$input = $this->climate->cyan()->input( 'Original web root is empty. Update to the one guessed? (Y/n)' );
-				$input->accept( [ 'Y', 'N' ] );
-				$input->defaultTo( 'Y' );
-				$response = $input->prompt();
+		}
 
-				if ( strtolower( $response ) == 'y' ) {
-					$this->climate->green( 'Saving...' );
-					$original_project->set_web_root( $project->get_web_root() );
-					$this->insightly_service->save_project( $original_project );
-					$this->insightly_service->get_projects();
-				}
+		if ( $ssh_failed ) {
+			$guessed_ssh_command = 'ssh root@' . $ip;
+			$this->climate->green()->inline( 'Guessing SSH command: ' . $guessed_ssh_command . '...' );
+			$project->set_ssh_to_prod( $guessed_ssh_command );
+			try {
+				@$ssh_service = new SSHService( $project );
+				$this->climate->green( 'success' );
+				$ssh_failed = false;
+			} catch ( \Exception $e ) {
+				$this->climate->red( 'failed' );
+				$ssh_failed = true;
 
+			}
+		}
+
+		if ( $ssh_failed ) {
+			$this->climate->red( 'Could not connect to SSH. Giving up.' );
+			exit;
+		}
+
+
+		$web_root = $ssh_service->get_web_root();
+
+		if ( $web_root ) {
+			$this->climate->green( 'Guessing that web root is ' . $web_root );
+		} else {
+			$this->climate->red( 'Not able to guess web root.' );
+
+		}
+
+		if ( ! $original_project->get_web_root() && $web_root ) {
+			$input = $this->climate->cyan()->input( 'Original web root is empty. Update to the one guessed? (Y/n)' );
+			$input->accept( [ 'Y', 'N' ] );
+			$input->defaultTo( 'Y' );
+			$response = $input->prompt();
+
+			if ( strtolower( $response ) == 'y' ) {
+				$this->climate->green( 'Saving...' );
+				$original_project->set_web_root( $web_root );
+				$this->insightly_service->save_project( $original_project );
+				$this->insightly_service->get_projects();
 			}
 
 		}
+
+		if ( ! $original_project->get_ssh_to_prod() ) {
+			$input = $this->climate->cyan()->input( 'Original SSH to prod is empty? Update to the one guessed? (Y/n)' );
+			$input->accept( [ 'Y', 'N' ] );
+			$input->defaultTo( 'Y' );
+			$response = $input->prompt();
+
+			if ( strtolower( $response ) == 'y' ) {
+				$this->climate->green( 'Saving...' );
+				$original_project->set_web_root( $project->get_web_root() );
+				$this->insightly_service->save_project( $original_project );
+				$this->insightly_service->get_projects();
+			}
+
+		}
+
 
 	}
 
@@ -123,14 +183,11 @@ class Guess extends Command {
 
 		if ( ! $this->servers ) {
 
-			$this->climate->yellow( 'Getting all Rackspace servers...' );
 			$this->rackspace_service = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
 			$rackspace_servers       = $this->rackspace_service->get_servers();
 
-			$this->climate->yellow( 'Getting all Rackspace load balancers...' );
 			$rackspace_load_balancers = $this->rackspace_service->get_load_balancers();
 
-			$this->climate->yellow( 'Getting all Digital Ocean servers...' );
 			$this->digital_ocean_service = new DigitalOceanService( DIGITAL_OCEAN_API_KEY );
 			$digital_ocean_servers       = $this->digital_ocean_service->get_servers();
 
@@ -152,21 +209,19 @@ class Guess extends Command {
 	 *
 	 * @return array|null
 	 */
-	private function try_alternative_urls( Project $project ) {
-		$url = 'https://' . $project->get_name();
-		$this->climate->error( 'Has no production URL. Trying name as domain: ' . $url );
+	private function guess_prod_url( Project $project ) {
+		$urls = [ $project->get_prod_url(), 'https://' . $project->get_name() ];
 
-		try {
-			$response = $this->fetch_url( $url );
-		} catch ( \Exception $e ) {
-			$this->climate->red( $e->getMessage() );
+		foreach ( $urls as $url ) {
 
-			return;
-		}
+			try {
+				$response = $this->fetch_url( $url );
+			} catch ( \Exception $e ) {
+			}
 
-		if ( $response->getStatusCode() == 200 ) {
-			$this->climate->green( 'Page exists.' );
-			$project->set_prod_url( $url );
+			if ( $response->getStatusCode() == 200 ) {
+				return $url;
+			}
 		}
 
 	}
@@ -176,71 +231,25 @@ class Guess extends Command {
 	 *
 	 * @param Project $project
 	 */
-	private function find_production_server( Project $project ) {
-		$this->climate->purple( 'Trying to find SSH command.' );
+	private function guess_production_server( $ip ) {
 
-		$ip = $this->get_ip( $project );
-
-		if ( ! $this->net_service->is_ip( $ip ) ) {
-			$this->climate->error( 'IP could not be found' );
-
-			return;
-		}
-
-		$this->climate->green( 'IP found: ' . $ip );
 		$server = $this->find_server_by_ip( $ip );
 
 		if ( ! $server ) {
-			$this->climate->cyan( 'Server for that IP could not be found' );
-
 			$reverse_proxy = $this->net_service->find_reverse_proxy( $ip );
 
 			if ( $reverse_proxy ) {
-				$this->climate->red( 'Found reverse proxy: "' . $reverse_proxy . '". Giving up.' );
-				exit;
 
-				return;
+				return [ 'status' => 0, 'message' => 'Found reverse proxy: ' . $reverse_proxy ];
 
 			}
 
 
-			$this->climate->red( 'Giving up since we could not find server.' );
-			exit;
+			return [ 'status' => 0, 'message' => 'Could not find server for IP ' . $ip ];
 		}
 
+		return [ 'status' => 1, 'server' => $server ];
 
-		$this->climate->green( 'Host ' . $server->get_name() . ' found.' );
-
-		$server_name_ip = gethostbyname( $server->get_name() );
-
-		if ( $server_name_ip == $ip ) {
-			$ssh_host = $server->get_name();
-		} else {
-			$ssh_host = $server->get_public_ip();
-		}
-
-		$ssh = 'ssh root@' . $ssh_host;
-
-		$this->climate->green( 'SSH command: "' . $ssh . '"' );
-		$this->climate->green( 'Production server name: "' . $server->get_insightly_name() . '"..."' );
-		$this->climate->yellow( 'Production server location: "' . get_class( $server ) . '"..."' );
-
-		$this->climate->cyan( 'Trying to find web root...' );
-
-		$project->set_ssh_to_prod( $ssh );
-		$project->set_prod_server( $server->get_insightly_name() );
-
-		try {
-			$ssh_service = new SSHService( $project );
-			$web_root    = $ssh_service->get_web_root();
-		} catch ( Exception $e ) {
-			$this->report['could_not_ssh'][] = $project;
-		}
-
-		if ( $web_root ) {
-			$this->climate->green( 'Found it: ' . $web_root );
-			$project->set_web_root( $web_root );
-		}
 	}
 
 	/**
@@ -251,16 +260,31 @@ class Guess extends Command {
 	 * @return string
 	 */
 	private function get_ip( Project $project ): string {
+
+		$hosts = [];
+
 		$domain_name = str_replace( 'https://', '', $project->get_prod_url() );
 		$domain_name = str_replace( 'http://', '', $domain_name );
 		$domain_name = str_replace( '/', '', $domain_name );
 
+		$hosts[] = $domain_name;
 
-		$this->climate->green( 'Getting IP of ' . $domain_name );
+		$ssh = $project->get_ssh_to_prod();
 
-		$ip = gethostbyname( $domain_name );
+		if ( $ssh ) {
+			$ssh = str_replace( 'ssh ', '', $ssh );
+			list( $username, $host ) = explode( '@', $ssh );
+			$hosts[] = $host;
 
-		return $ip;
+		}
+
+		foreach ( $hosts as $host ) {
+			$ip = gethostbyname( $host );
+
+			if ( $ip ) {
+				return $ip;
+			}
+		}
 
 	}
 
@@ -273,7 +297,6 @@ class Guess extends Command {
 	 */
 	private function find_server_by_ip( string $ip ) {
 		$climate = $this->get_climate();
-		$climate->yellow( 'Looking for IP ' . $ip );
 		$servers = $this->get_servers();
 
 		$found = false;
@@ -294,7 +317,6 @@ class Guess extends Command {
 		}
 
 		if ( $server instanceof RackspaceLoadBalancer ) {
-			$climate->cyan( 'Is load balancer.' );
 
 			$ips = $server->get_nodes();
 
@@ -309,27 +331,6 @@ class Guess extends Command {
 			return $server;
 		}
 
-	}
-
-	/**
-	 * Outputs the report after having gone through all projects.
-	 */
-	private function output_report() {
-		$climate = $this->get_climate();
-
-		$climate->cyan( 'STATUS REPORT:' );
-
-
-		foreach ( $this->report as $label => $projects ) {
-			$climate->green( '-= ' . $label . ' =-' );
-
-			foreach ( $projects as $project ) {
-				$climate->yellow( $project->get_name() . ' (' . $project->get_insightly_url() . ')' );
-			}
-
-			print( "\n" );
-
-		}
 	}
 
 	/**

@@ -23,5 +23,9 @@ class RackspaceServer extends Server {
 		return $name;
 	}
 
+	public function get_provider_name() {
+		return 'Rackspace';
+	}
+
 
 }

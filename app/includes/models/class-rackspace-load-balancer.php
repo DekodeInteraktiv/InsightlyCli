@@ -15,6 +15,11 @@ class RackspaceLoadBalancer extends Server {
 		return $this->get_name();
 	}
 
+	public function get_provider_name() {
+		return 'Rackspace LB';
+	}
+
+
 	/**
 	 * Adds the IP address of a node to the list of nodes in this load balancer.
 	 *

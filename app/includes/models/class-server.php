@@ -10,6 +10,8 @@ abstract class Server {
 
 	abstract function get_insightly_name();
 
+	abstract public function get_provider_name();
+
 	/**
 	 * @return mixed
 	 */
