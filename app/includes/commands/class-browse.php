@@ -43,16 +43,13 @@ class Browse extends Command {
 	 */
 	public function run() {
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$similar_projects  = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 		$climate           = $this->get_climate();
 		$os                = OperatingSystemService::get_current_os();
 
-		if ( $similar_projects[0] ) {
-			$climate->success( 'Opening page for ' . $similar_projects[0]->get_name() );
-			exec( $os->get_open_in_browser_command() . ' ' . $similar_projects[0]->get_insightly_url() );
-		} else {
-			$climate->error( 'Could not find this project.' );
-		}
+		$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
+
+		$climate->success( 'Opening page for ' . $project->get_name() );
+		exec( $os->get_open_in_browser_command() . ' ' . $project->get_insightly_url() );
 
 	}
 }

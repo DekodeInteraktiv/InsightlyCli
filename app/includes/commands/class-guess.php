@@ -57,11 +57,7 @@ class Guess extends Command {
 
 		$arguments = $this->get_arguments();
 		if ( isset( $arguments[2] ) ) {
-			$project = $this->insightly_service->get_projects_by_name_similarity( $arguments[2] );
-			if ( ! $project ) {
-				$this->climate->error( 'Could not find that project.' );
-				exit;
-			}
+			$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
 
 		} else {
 			$this->climate->error( 'No project was specified.' );
@@ -70,8 +66,7 @@ class Guess extends Command {
 
 		$this->get_servers();
 
-
-		$this->projects = [ $project[0] ];
+		$this->projects = [ $project ];
 
 		$number_of_projects = count( $this->projects );
 		$i                  = 0;
@@ -196,6 +191,7 @@ class Guess extends Command {
 			exit;
 		}
 
+
 		$this->climate->green( 'Host ' . $server->get_name() . ' found.' );
 
 		$server_name_ip = gethostbyname( $server->get_name() );
@@ -210,6 +206,8 @@ class Guess extends Command {
 
 		$this->climate->green( 'SSH command: "' . $ssh . '"' );
 		$this->climate->green( 'Production server name: "' . $server->get_insightly_name() . '"..."' );
+		$this->climate->yellow( 'Production server location: "' . get_class( $server ) . '"..."' );
+
 		$this->climate->cyan( 'Trying to find web root...' );
 
 		$project->set_ssh_to_prod( $ssh );

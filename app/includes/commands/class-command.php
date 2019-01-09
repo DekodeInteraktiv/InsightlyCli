@@ -80,6 +80,35 @@ abstract class Command {
 		}
 	}
 
+	protected function get_most_similar_project_or_die( $name ) {
+		$climate           = $this->get_climate();
+		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
+
+		$similar_projects = $insightly_service->get_projects_by_name_similarity( $name );
+
+		if ( count( $similar_projects ) > 1 ) {
+			$climate->green( 'Several similar projects were found. Please be a bit more specific:' );
+
+			foreach ( $similar_projects as $project ) {
+				$climate->yellow( '   ' . $project->get_name() );
+
+			}
+
+			exit;
+		}
+
+		if ( ! count( $similar_projects ) ) {
+			$climate->error( 'No similar project was found.' );
+			exit;
+		}
+
+		$project = $similar_projects[0];
+
+		return $project;
+
+	}
+
+
 	/**
 	 * @return array
 	 */

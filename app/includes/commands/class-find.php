@@ -52,17 +52,7 @@ class Find extends Command {
 			exit;
 		}
 
-		$similar_projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
-
-		if ( is_array( $similar_projects ) && count( $similar_projects ) ) {
-			$project = $similar_projects[0];
-		}
-
-		if ( ! isset( $project ) ) {
-			$climate->error( 'No similar project was found.' );
-			exit;
-		}
-
+		$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
 
 		$climate->green()->bold()->out( '-= ' . strtoupper( $project->get_name() ) . " =- \n" );
 		$climate->cyan( "ID:\t\t\t" . $project->get_id() );

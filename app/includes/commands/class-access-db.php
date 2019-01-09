@@ -42,16 +42,9 @@ class AccessDb extends Command {
 	 */
 	public function run() {
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$projects          = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 		$climate           = $this->get_climate();
 
-		if ( ! $projects[0] ) {
-			$climate->error( 'No similar project could be found.' );
-
-			exit;
-		}
-
-		$project = $projects[0];
+		$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
 
 		$climate->green( 'Found ' . $project->get_name() );
 

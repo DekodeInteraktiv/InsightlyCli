@@ -4,6 +4,7 @@ namespace Dekode\InsightlyCli\Services;
 
 use Dekode\InsightlyCli\Models\Project;
 use GuzzleHttp\Client;
+use League\CLImate\CLImate;
 use Namshi\Cuzzle\Formatter\CurlFormatter;
 
 class InsightlyService {
@@ -87,16 +88,24 @@ class InsightlyService {
 			}
 		}
 
+
 		arsort( $similarities );
 
+		$old_similarity = false;
 
 		foreach ( $similarities as $index => $similarity ) {
-			$return_array[] = $projects[ $index ];
+
+			if ( $old_similarity == $similarity || ! $old_similarity ) {
+				$return_array[] = $projects[ $index ];
+				$old_similarity = $similarity;
+			}
+
 		}
 
 		return $return_array;
 
 	}
+
 
 	/**
 	 * Saves the passed project.

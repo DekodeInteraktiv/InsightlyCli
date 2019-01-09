@@ -19,6 +19,7 @@ class Project {
 	private $hosting_level_agreement;
 	private $incidents_email_report_client;
 	private $web_root;
+	private $similarity; // Used to store similarity to search query.
 
 	/**
 	 * @return mixed
