@@ -64,6 +64,8 @@ class Guess extends Command {
 			exit;
 		}
 
+		$original_project = clone $project;
+
 		$this->get_servers();
 
 		$this->projects = [ $project ];
@@ -91,6 +93,21 @@ class Guess extends Command {
 			$this->climate->yellow( 'Server location: ' . $project->get_prod_server() );
 			$this->climate->yellow( $project->get_ssh_to_prod() . " -t 'cd " . $project->get_web_root() . "; bash'" );
 			$this->climate->output();
+
+			if ( ! $original_project->get_web_root() ) {
+				$input = $this->climate->cyan()->input( 'Original web root is empty. Update to the one guessed? (Y/n)' );
+				$input->accept( [ 'Y', 'N' ] );
+				$input->defaultTo( 'Y' );
+				$response = $input->prompt();
+
+				if ( strtolower( $response ) == 'y' ) {
+					$this->climate->green( 'Saving...' );
+					$original_project->set_web_root( $project->get_web_root() );
+					$this->insightly_service->save_project( $original_project );
+					$this->insightly_service->get_projects();
+				}
+
+			}
 
 		}
 
