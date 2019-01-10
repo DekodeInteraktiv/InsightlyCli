@@ -3,7 +3,7 @@
 1.  Clone the repository.
 2.  Run `cd src && composer install`
 3. Copy `config-sample.php` to `config.php` and add the Insightly API key. See [here](https://support.insight.ly/hc/en-us/articles/204864594-Finding-or-resetting-your-API-key) on how to find it.
-4. If you want to run the `guess` command, you need the other APIs as well.
+4. If you want to use every aspect of the `guess` command, you need the other APIs as well.
 
 ## Building
     sudo ./build.sh
