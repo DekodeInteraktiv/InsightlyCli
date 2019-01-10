@@ -115,7 +115,7 @@ class Guess extends Command {
 			$ssh_failed = false;
 			try {
 				@$ssh_service = new SSHService( $project );
-				$this->climate->green( 'success' );
+				$this->climate->lightGreen( 'success' );
 			} catch ( \Exception $e ) {
 				$this->climate->red( 'failed' );
 				$ssh_failed = true;
@@ -132,7 +132,7 @@ class Guess extends Command {
 			$project->set_ssh_to_prod( $guessed_ssh_command );
 			try {
 				@$ssh_service = new SSHService( $project );
-				$this->climate->green( 'success' );
+				$this->climate->lightGreen( 'success' );
 				$ssh_failed = false;
 			} catch ( \Exception $e ) {
 				$this->climate->red( 'failed' );
