@@ -13,7 +13,6 @@ use Dekode\InsightlyCli\Services\SSHService;
 class Guess extends Command {
 
 	private $servers;
-	private $report = [];
 
 	/**
 	 * Returns the string used to run this command.
@@ -72,7 +71,8 @@ class Guess extends Command {
 
 		$prod_url = $this->guess_prod_url( $project );
 		$project->set_prod_url( $prod_url );
-		$this->climate->green( 'Guessing that prod URL is: ' . $prod_url );
+		$this->climate->green()->inline( 'Guessing that prod URL is: ' );
+		$this->climate->cyan( $prod_url );
 
 		$ip = $this->get_ip( $project );
 		if ( ! $this->net_service->is_ip( $ip ) ) {
@@ -81,7 +81,8 @@ class Guess extends Command {
 		}
 
 
-		$this->climate->green( 'Guessing that IP address is ' . $ip );
+		$this->climate->green()->inline( 'Guessing that IP address is ' );
+		$this->climate->cyan( $ip );
 
 		$server = $this->guess_production_server( $ip );
 
@@ -89,13 +90,15 @@ class Guess extends Command {
 			$provider = $this->net_service->guess_provider_by_ip( $ip );
 
 			if ( $provider ) {
-				$this->climate->green( 'Guessing external provider: ' . $provider );
+				$this->climate->green()->inline( 'Guessing external provider: ' );
+				$this->climate->cyan( $provider );
 			} else {
-				$this->climate->red( 'Not able to guess server. Reason: ' . $server['message'] );
+				$this->climate->red( 'Not able to guess server. Reason: "' . $server['message'] . '"' );
 			}
 		} else {
 			$server = $server['server'];
-			$this->climate->green( 'Guessing that server is located at ' . $server->get_provider_name() . ' / ' . $server->get_insightly_name() );
+			$this->climate->green()->inline( 'Guessing that server is located at ' );
+			$this->climate->cyan( $server->get_provider_name() . ' / ' . $server->get_insightly_name() );
 		}
 
 		$this->climate->green()->inline( 'Testing if SSH in Insightly works...' );
@@ -130,15 +133,27 @@ class Guess extends Command {
 			exit;
 		}
 
-
 		$web_root = $ssh_service->get_web_root();
 
 		if ( $web_root ) {
-			$this->climate->green( 'Guessing that web root is ' . $web_root );
+			$this->climate->green()->inline( 'Guessing that web root is ' );
+			$this->climate->cyan( $web_root );
 		} else {
 			$this->climate->red( 'Not able to guess web root.' );
 
 		}
+
+		$db_credentials = $ssh_service->get_db_credentials();
+
+		if ( isset( $db_credentials['DB_HOST'] ) ) {
+			$this->climate->green()->inline( 'Guessing that DB host is ' );
+			$this->climate->cyan( $db_credentials['DB_HOST'] );
+
+		} else {
+			$this->climate->red( 'Not able to guess DB host.' );
+
+		}
+
 
 		if ( ! $original_project->get_web_root() && $web_root ) {
 			$input = $this->climate->cyan()->input( 'Original web root is empty. Update to the one guessed? (Y/n)' );
@@ -154,23 +169,6 @@ class Guess extends Command {
 			}
 
 		}
-
-		if ( ! $original_project->get_ssh_to_prod() ) {
-			$input = $this->climate->cyan()->input( 'Original SSH to prod is empty? Update to the one guessed? (Y/n)' );
-			$input->accept( [ 'Y', 'N' ] );
-			$input->defaultTo( 'Y' );
-			$response = $input->prompt();
-
-			if ( strtolower( $response ) == 'y' ) {
-				$this->climate->green( 'Saving...' );
-				$original_project->set_web_root( $project->get_web_root() );
-				$this->insightly_service->save_project( $original_project );
-				$this->insightly_service->get_projects();
-			}
-
-		}
-
-
 	}
 
 
