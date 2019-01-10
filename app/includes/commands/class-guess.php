@@ -65,6 +65,14 @@ class Guess extends Command {
 		$original_project = clone $project;
 
 		$this->climate->yellow( 'Getting all servers...' );
+
+		if ( ! defined( 'RACKSPACE_API_KEY' ) ) {
+			$this->climate->red( 'Missing Rackspace API key. Rackspace servers and load balancers will not be loaded.' );
+		}
+		if ( ! defined( 'DIGITAL_OCEAN_API_KEY' ) ) {
+			$this->climate->red( 'Missing Digital Ocean API key. Rackspace servers and load balancers will not be loaded.' );
+		}
+
 		$this->get_servers();
 
 		$this->climate->yellow( "\n" . 'Working with ' . $project->get_name() );
@@ -101,16 +109,21 @@ class Guess extends Command {
 			$this->climate->cyan( $server->get_provider_name() . ' / ' . $server->get_insightly_name() );
 		}
 
-		$this->climate->green()->inline( 'Testing if SSH in Insightly works...' );
+		if ( $project->get_ssh_to_prod() ) {
+			$this->climate->green()->inline( 'Testing if SSH in Insightly works...' );
 
-		$ssh_failed = false;
-		try {
-			@$ssh_service = new SSHService( $project );
-			$this->climate->green( 'success' );
-		} catch ( \Exception $e ) {
-			$this->climate->red( 'failed' );
+			$ssh_failed = false;
+			try {
+				@$ssh_service = new SSHService( $project );
+				$this->climate->green( 'success' );
+			} catch ( \Exception $e ) {
+				$this->climate->red( 'failed' );
+				$ssh_failed = true;
+
+			}
+		} else {
 			$ssh_failed = true;
-
+			$this->climate->red( 'No SSH command in Insightly' );
 		}
 
 		if ( $ssh_failed ) {
@@ -148,6 +161,8 @@ class Guess extends Command {
 		if ( isset( $db_credentials['DB_HOST'] ) ) {
 			$this->climate->green()->inline( 'Guessing that DB host is ' );
 			$this->climate->cyan( $db_credentials['DB_HOST'] );
+			$this->climate->green()->inline( 'Guessing that DB name ' );
+			$this->climate->cyan( $db_credentials['DB_NAME'] );
 
 		} else {
 			$this->climate->red( 'Not able to guess DB host.' );
@@ -156,7 +171,7 @@ class Guess extends Command {
 
 
 		if ( ! $original_project->get_web_root() && $web_root ) {
-			$input = $this->climate->cyan()->input( 'Original web root is empty. Update to the one guessed? (Y/n)' );
+			$input = $this->climate->yellow()->input( "\n" . 'Original web root is empty. Update to the one guessed? (Y/n)' );
 			$input->accept( [ 'Y', 'N' ] );
 			$input->defaultTo( 'Y' );
 			$response = $input->prompt();
@@ -181,13 +196,21 @@ class Guess extends Command {
 
 		if ( ! $this->servers ) {
 
-			$this->rackspace_service = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
-			$rackspace_servers       = $this->rackspace_service->get_servers();
+			$rackspace_servers        = [];
+			$rackspace_load_balancers = [];
+			$digital_ocean_servers    = [];
 
-			$rackspace_load_balancers = $this->rackspace_service->get_load_balancers();
+			if ( defined( 'RACKSPACE_USERNAME' ) && RACKSPACE_USERNAME && defined( 'RACKSPACE_API_KEY' ) && RACKSPACE_API_KEY ) {
 
-			$this->digital_ocean_service = new DigitalOceanService( DIGITAL_OCEAN_API_KEY );
-			$digital_ocean_servers       = $this->digital_ocean_service->get_servers();
+				$this->rackspace_service  = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
+				$rackspace_load_balancers = $this->rackspace_service->get_load_balancers();
+				$rackspace_servers        = $this->rackspace_service->get_servers();
+			}
+
+			if ( defined( 'DIGITAL_OCEAN_API_KEY' ) && DIGITAL_OCEAN_API_KEY ) {
+				$this->digital_ocean_service = new DigitalOceanService( DIGITAL_OCEAN_API_KEY );
+				$digital_ocean_servers       = $this->digital_ocean_service->get_servers();
+			}
 
 			$servers = array_merge( $rackspace_servers, $digital_ocean_servers, $rackspace_load_balancers );
 
