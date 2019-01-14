@@ -176,11 +176,17 @@ class Guess extends Command {
 
 
 		if ( isset( $db_credentials['DB_NAME'] ) ) {
-
 			$this->climate->green()->inline( 'Guessing that DB name ' );
 			$this->climate->cyan( $db_credentials['DB_NAME'] );
 		} else {
 			$this->climate->red( 'Not able to guess DB name.' );
+		}
+
+		$os = $ssh_service->get_os();
+
+		if ( $os ) {
+			$this->climate->green()->inline( 'Guessing that OS on server is ' );
+			$this->climate->cyan( $os );
 
 		}
 

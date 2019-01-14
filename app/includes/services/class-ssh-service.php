@@ -175,6 +175,16 @@ class SSHService {
 	}
 
 	/**
+	 * Will try to find the OS the site runs on and return it.
+	 *
+	 * @return string
+	 */
+	public function get_os() {
+		return trim( $this->ssh->exec( 'cat /etc/issue' ) );
+
+	}
+
+	/**
 	 * Returns the username of the linux user who owns the web root.
 	 *
 	 * @return string
