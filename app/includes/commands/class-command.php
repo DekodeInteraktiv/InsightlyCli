@@ -120,6 +120,7 @@ abstract class Command {
 	 * @param array $arguments
 	 */
 	public function set_arguments( array $arguments ) {
+
 		$arguments = $this->parse_flags( $arguments );
 
 		$this->arguments = $arguments;

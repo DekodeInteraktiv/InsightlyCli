@@ -54,6 +54,7 @@ class Guess extends Command {
 		$this->net_service       = new NetService();
 
 		$arguments = $this->get_arguments();
+
 		if ( isset( $arguments[2] ) ) {
 			$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
 
@@ -78,6 +79,13 @@ class Guess extends Command {
 		$this->climate->yellow( "\n" . 'Working with ' . $project->get_name() );
 
 		$prod_url = $this->guess_prod_url( $project );
+
+		if ( ! $prod_url ) {
+			$this->climate->red()->inline( 'Could not guess prod URL. Giving up.' );
+			exit;
+
+		}
+
 		$project->set_prod_url( $prod_url );
 		$this->climate->green()->inline( 'Guessing that prod URL is: ' );
 		$this->climate->cyan( $prod_url );
@@ -161,11 +169,18 @@ class Guess extends Command {
 		if ( isset( $db_credentials['DB_HOST'] ) ) {
 			$this->climate->green()->inline( 'Guessing that DB host is ' );
 			$this->climate->cyan( $db_credentials['DB_HOST'] );
-			$this->climate->green()->inline( 'Guessing that DB name ' );
-			$this->climate->cyan( $db_credentials['DB_NAME'] );
-
 		} else {
 			$this->climate->red( 'Not able to guess DB host.' );
+
+		}
+
+
+		if ( isset( $db_credentials['DB_NAME'] ) ) {
+
+			$this->climate->green()->inline( 'Guessing that DB name ' );
+			$this->climate->cyan( $db_credentials['DB_NAME'] );
+		} else {
+			$this->climate->red( 'Not able to guess DB name.' );
 
 		}
 
@@ -240,7 +255,8 @@ class Guess extends Command {
 			} catch ( \Exception $e ) {
 			}
 
-			if ( $response->getStatusCode() == 200 ) {
+
+			if ( isset( $response ) && is_object( $response ) && $response->getStatusCode() == 200 ) {
 				return $url;
 			}
 		}

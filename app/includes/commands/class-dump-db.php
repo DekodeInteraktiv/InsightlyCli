@@ -88,8 +88,6 @@ class DumpDB extends Command {
 		$climate = $this->get_climate();
 		$climate->yellow( 'Carefully check these commands and then run them from your prompt:' );
 
-		$arguments = $this->get_arguments();
-
 		$uploads_folder = $ssh_service->get_uploads_folder();
 		$web_root       = $ssh_service->get_web_root();
 
