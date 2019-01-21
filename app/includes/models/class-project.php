@@ -19,7 +19,7 @@ class Project {
 	private $hosting_level_agreement;
 	private $incidents_email_report_client;
 	private $web_root;
-	private $similarity; // Used to store similarity to search query.
+	private $terminated;
 
 	/**
 	 * @return mixed
@@ -248,6 +248,20 @@ class Project {
 	 */
 	public function set_web_root( $web_root ) {
 		$this->web_root = $web_root;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function is_terminated() {
+		return $this->terminated;
+	}
+
+	/**
+	 * @param mixed $terminated
+	 */
+	public function set_terminated( $terminated ): void {
+		$this->terminated = $terminated;
 	}
 
 

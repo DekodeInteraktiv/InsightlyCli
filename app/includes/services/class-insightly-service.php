@@ -37,7 +37,11 @@ class InsightlyService {
 		$projects = $this->make_request( $endpoint );
 
 		foreach ( $projects as $project ) {
-			$return_value[] = $this->convert_insightly_project( $project );
+			$project = $this->convert_insightly_project( $project );
+
+			if ( ! $project->is_terminated() ) {
+				$return_value[] = $project;
+			}
 		}
 
 		file_put_contents( $tmp_filename, serialize( $return_value ) );
@@ -228,6 +232,8 @@ class InsightlyService {
 					case 'Web_root__c':
 						$project->set_web_root( $custom_field->FIELD_VALUE );
 						break;
+					case 'Terminated_project__c':
+						$project->set_terminated( $custom_field->FIELD_VALUE );
 					default:
 						//print( '"' . $custom_field->FIELD_NAME . '"' . " = " . $custom_field->FIELD_VALUE . "\n" );
 						break;

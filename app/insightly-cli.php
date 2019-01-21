@@ -20,6 +20,7 @@ require( __DIR__ . '/includes/services/class-rackspace-service.php' );
 require( __DIR__ . '/includes/services/class-operating-system-service.php' );
 require( __DIR__ . '/includes/services/class-ssh-service.php' );
 require( __DIR__ . '/includes/services/class-net-service.php' );
+require( __DIR__ . '/includes/services/class-dekodemon-service.php' );
 
 // Operating systems
 require( __DIR__ . '/includes/operating-systems/class-operating-system.php' );
@@ -36,6 +37,9 @@ require( __DIR__ . '/includes/commands/class-browse.php' );
 require( __DIR__ . '/includes/commands/class-guess.php' );
 require( __DIR__ . '/includes/commands/class-dump-db.php' );
 require( __DIR__ . '/includes/commands/class-access-db.php' );
+require( __DIR__ . '/includes/commands/class-sanity-check.php' );
+require( __DIR__ . '/includes/commands/class-dekodemon-activate.php' );
+require( __DIR__ . '/includes/commands/class-dekodemon-sanity-check.php' );
 
 
 $core = new \Dekode\InsightlyCli\Core( [
@@ -46,7 +50,10 @@ $core = new \Dekode\InsightlyCli\Core( [
 	new \Dekode\InsightlyCli\Commands\Browse(),
 	new \Dekode\InsightlyCli\Commands\Guess(),
 	new \Dekode\InsightlyCli\Commands\DumpDB(),
-	new \Dekode\InsightlyCli\Commands\AccessDb()
+	new \Dekode\InsightlyCli\Commands\AccessDb(),
+	new \Dekode\InsightlyCli\Commands\SanityCheck(),
+	//new \Dekode\InsightlyCli\Commands\DekodemonActivate(),
+	new \Dekode\InsightlyCli\Commands\DekodemonSanityCheck()
 ] );
 
 if ( $argv[0] == 'php' ) {

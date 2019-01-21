@@ -60,7 +60,7 @@ class Update extends Command {
 
 		if ( ! $project ) {
 			$climate->error( 'That project could not be found.' );
-			$this->climate->output();
+			$climate->output();
 			$this->show_similar_projects( $this->get_arguments()[2] );
 
 			exit;

@@ -3,12 +3,14 @@
 namespace Dekode\InsightlyCli\Services;
 
 use Dekode\InsightlyCli\Models\Project;
-use GuzzleHttp\Client;
-use League\CLImate\CLImate;
 use phpseclib\Net\SSH2;
 use phpseclib\Crypt\RSA;
 
 class SSHService {
+
+	const YES = 1;
+	const NO = 2;
+	const UNSURE = 3;
 
 	private $project;
 
@@ -44,20 +46,20 @@ class SSHService {
 	 *
 	 * @return bool|string
 	 */
-	public function get_web_root() {
+	public function guess_web_root() {
 
 		if ( ! isset( $this->web_root ) ) {
 
-			$nginx_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
-			$nginx_conf_files .= $this->ssh->exec( 'cat /etc/apache2/sites-enabled/*' );
-			$nginx_conf_lines = explode( "\n", $nginx_conf_files );
+			$web_server_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
+			$web_server_conf_files .= $this->ssh->exec( 'cat /etc/apache2/sites-enabled/*' );
+			$web_server_conf_lines = explode( "\n", $web_server_conf_files );
 
 			$found_domain   = false;
 			$found_web_root = false;
 			$port           = false;
 			$line           = false;
 
-			foreach ( $nginx_conf_lines as $line ) {
+			foreach ( $web_server_conf_lines as $line ) {
 				// Nginx
 				if ( preg_match( '/listen (\d{2,3})/', $line, $matches ) ) {
 					$port = $matches[1];
@@ -113,7 +115,7 @@ class SSHService {
 	 * @return string
 	 */
 	public function get_uploads_folder() {
-		$web_root       = $this->get_web_root();
+		$web_root       = $this->guess_web_root();
 		$uploads_folder = $this->ssh->exec( 'find ' . $web_root . ' -name uploads' );
 
 		return trim( $uploads_folder );
@@ -126,7 +128,7 @@ class SSHService {
 	 * @return string
 	 */
 	public function get_uploads_url() {
-		$web_root       = $this->get_web_root();
+		$web_root       = $this->guess_web_root();
 		$uploads_folder = $this->get_uploads_folder();
 		$uploads_path   = str_replace( $web_root, '', $uploads_folder );
 
@@ -139,12 +141,13 @@ class SSHService {
 	 *
 	 * @return array
 	 */
-	public function get_db_credentials() {
+	public function get_db_details() {
 		$web_root = $this->get_web_root();
 
 		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
 		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/../.env' );
 		$config_file .= $this->ssh->exec( 'cat ~/config.php' ); // Servebolt
+		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/*' );
 
 		$config_file = explode( "\n", $config_file );
 
@@ -170,8 +173,85 @@ class SSHService {
 
 		}
 
+		$config['table_prefix'] = $this->get_table_prefix();
+
 		return $config;
 
+	}
+
+	public function get_table_prefix() {
+		$web_root = $this->get_web_root();
+
+		$command = 'cd ' . $web_root . ' && echo \'global $wpdb; print("TABLE PREFIX: " . $wpdb->base_prefix);\' | wp shell --allow-root';
+		$output  = $this->ssh->exec( $command );
+
+		preg_match( '/TABLE PREFIX: (.*)/', $output, $matches );
+
+		if ( isset( $matches[1] ) ) {
+			return $matches[1];
+		} else {
+			return false;
+		}
+
+	}
+
+
+	public function plugin_is_installed( $slug ) {
+		$web_root = $this->get_web_root();
+		$result   = $this->ssh->exec( 'cd ' . $web_root . ' && find | grep plugins | grep ' . $slug );
+
+		return trim( $result ) != '';
+	}
+
+	public function is_multisite() {
+		$web_root = $this->get_web_root();
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MULTISITE: \' . (is_multisite() ? \'1\' : \'0\'));" | wp shell --allow-root' );
+
+		if ( isset( $matches[1] ) ) {
+			preg_match( '/MULTISITE: (\d)/', $output, $matches );
+		}
+
+		if ( isset( $matches[1] ) ) {
+			if ( $matches[1] == 1 ) {
+				return self::YES;
+			} else {
+				return self::NO;
+			}
+		} else {
+			return self::UNSURE;
+		}
+
+	}
+
+	public function get_main_site_url_in_multisite() {
+		$web_root = $this->get_web_root();
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MAIN_URL: \' . network_site_url());" | wp shell --allow-root' );
+
+		preg_match( '/MAIN_URL: (.*)/', $output, $matches );
+
+		if ( isset( $matches[1] ) ) {
+			return $matches[1];
+		}
+
+		return null;
+
+	}
+
+
+	public function run_raw_command( $command ) {
+		return $this->ssh->exec( $command );
+	}
+
+	protected function get_web_root() {
+		$web_root = $this->get_project()->get_web_root();
+
+		if ( ! $web_root ) {
+			$web_root = $this->guess_web_root();
+		}
+
+		return $web_root;
 	}
 
 	/**
@@ -190,7 +270,7 @@ class SSHService {
 	 * @return string
 	 */
 	public function get_file_owner() {
-		$owner = $this->ssh->exec( "stat -c '%U' " . $this->get_web_root() );
+		$owner = $this->ssh->exec( "stat -c ' % U' " . $this->guess_web_root() );
 
 		return trim( $owner );
 	}

@@ -88,7 +88,7 @@ class Core {
 
 
 		foreach ( $this->get_commands() as $command ) {
-			$spaces = 20 - strlen( $command->get_key() );
+			$spaces = 30 - strlen( $command->get_key() );
 
 			$climate->green()->inline( ' ' . $command->get_key() . str_repeat( ' ', $spaces ) );
 			$climate->lightBlue( $command->get_description() );

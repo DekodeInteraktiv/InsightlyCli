@@ -69,7 +69,7 @@ class DumpDB extends Command {
 
 		$ssh_service = new SSHService( $project );
 
-		$config = $ssh_service->get_db_credentials();
+		$config = $ssh_service->get_db_details();
 
 		$required_fields = [
 			'DB_HOST',
@@ -89,7 +89,7 @@ class DumpDB extends Command {
 		$climate->yellow( 'Carefully check these commands and then run them from your prompt:' );
 
 		$uploads_folder = $ssh_service->get_uploads_folder();
-		$web_root       = $ssh_service->get_web_root();
+		$web_root       = $ssh_service->guess_web_root();
 
 		if ( array_key_exists( 'share', $arguments ) ) {
 			$filename = $this->generate_random_string( 32 ) . ".sql";
