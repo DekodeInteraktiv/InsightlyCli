@@ -88,19 +88,15 @@ class InsightlyService {
 
 			similar_text( $name, strtolower( $project->get_name() ), $similarity );
 
-
-			if ( $similarity > 50 ) {
-				$similarities[ $index ] = $similarity;
-			}
-
 			if ( stripos( $project->get_name(), $name ) !== false ) {
 				$similarities[ $index ] = 90;
+			} else {
+				$similarities[ $index ] = $similarity;
 
 			}
 		}
 
 		arsort( $similarities );
-
 
 		foreach ( $similarities as $index => $similarity ) {
 			$return_array[] = $projects[ $index ];

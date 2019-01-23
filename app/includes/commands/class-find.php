@@ -51,13 +51,9 @@ class Find extends Command {
 
 		$projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 
-		usort( $projects, function ( $a, $b ) {
-			return strcmp( $a->get_name(), $b->get_name() );
-		} );
-
 		$climate->green( 'Found these projects:' );
-		foreach ( $projects as $project ) {
-			$climate->yellow( $project->get_name() );
+		for ( $i = 0; $i < 10; $i ++ ) {
+			$climate->yellow( $projects[ $i ]->get_name() );
 
 		}
 
