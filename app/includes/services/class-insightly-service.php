@@ -87,22 +87,67 @@ class InsightlyService {
 		foreach ( $projects as $index => $project ) {
 
 			similar_text( $name, strtolower( $project->get_name() ), $similarity );
+
+
 			if ( $similarity > 50 ) {
 				$similarities[ $index ] = $similarity;
 			}
-		}
 
+			if ( stripos( $project->get_name(), $name ) !== false ) {
+				$similarities[ $index ] = 90;
+
+			}
+		}
 
 		arsort( $similarities );
 
-		$old_similarity = false;
 
 		foreach ( $similarities as $index => $similarity ) {
+			$return_array[] = $projects[ $index ];
+		}
 
-			if ( $old_similarity == $similarity || ! $old_similarity ) {
-				$return_array[] = $projects[ $index ];
-				$old_similarity = $similarity;
+		return $return_array;
+
+	}
+
+	/**
+	 * Returns most similar project.
+	 *
+	 * @param $name
+	 *
+	 * @return array
+	 */
+	public function get_most_similar_project( $name ) {
+		$projects     = $this->get_projects();
+		$name         = strtolower( $name );
+		$similarities = [];
+		$return_array = [];
+
+		foreach ( $projects as $index => $project ) {
+
+			similar_text( $name, strtolower( $project->get_name() ), $similarity );
+
+			if ( $similarity > 50 ) {
+				$similarities[ $index ] = $similarity;
 			}
+
+		}
+
+		arsort( $similarities );
+
+		$max_similarity = 0;
+		foreach ( $similarities as $index => $similarity ) {
+
+			print( $projects[ $index ]->get_name() . ': ' . $similarity . "\n" );
+
+			if ( $similarity > $max_similarity ) {
+				$max_similarity = $similarity;
+				$return_array   = [ $projects[ $index ] ];
+			} elseif ( $similarity == $max_similarity ) {
+				$return_array[] = $projects[ $index ];
+
+			}
+
 
 		}
 

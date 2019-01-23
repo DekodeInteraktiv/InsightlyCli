@@ -29,6 +29,7 @@ require( __DIR__ . '/includes/operating-systems/class-mac.php' );
 
 // Commands
 require( __DIR__ . '/includes/commands/class-command.php' );
+require( __DIR__ . '/includes/commands/class-info.php' );
 require( __DIR__ . '/includes/commands/class-find.php' );
 require( __DIR__ . '/includes/commands/class-ssh.php' );
 require( __DIR__ . '/includes/commands/class-rebuild-cache.php' );
@@ -43,6 +44,7 @@ require( __DIR__ . '/includes/commands/class-dekodemon-sanity-check.php' );
 
 
 $core = new \Dekode\InsightlyCli\Core( [
+	new \Dekode\InsightlyCli\Commands\Info(),
 	new \Dekode\InsightlyCli\Commands\Find(),
 	new \Dekode\InsightlyCli\Commands\SSH(),
 	new \Dekode\InsightlyCli\Commands\ClearCache(),

@@ -3,7 +3,6 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\SSHService;
 
 class Find extends Command {
 
@@ -22,7 +21,7 @@ class Find extends Command {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return 'Get information about a project.';
+		return 'Get a list of the names of similar projects.';
 	}
 
 	/**
@@ -31,9 +30,7 @@ class Find extends Command {
 	 * @return string
 	 */
 	public function get_help(): string {
-		$help = "Usage:\nisc find <name of project>\n\n";
-		$help .= "Examples:\n";
-		$help .= 'isc find finansforbundet.no' . "\n";
+		$help = "Usage:\nisc find <search string></search>\n\n";
 
 		return $help;
 
@@ -48,36 +45,22 @@ class Find extends Command {
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 
 		if ( ! isset( $this->get_arguments()[2] ) ) {
-			$climate->error( 'No project specified.' );
+			$climate->error( 'No search string specified.' );
 			exit;
 		}
 
-		$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );
+		$projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
 
-		$climate->green()->bold()->out( '-= ' . strtoupper( $project->get_name() ) . " =- \n" );
-		$climate->cyan( "ID:\t\t\t" . $project->get_id() );
-		$climate->cyan( "URL:\t\t\t" . $project->get_insightly_url() . "\n" );
+		usort( $projects, function ( $a, $b ) {
+			return strcmp( $a->get_name(), $b->get_name() );
+		} );
 
-		$climate->yellow( "Responsbile advisor:\t" . $project->get_responsible_advisor() );
-		$climate->yellow( "Project manager:\t" . $project->get_project_manager() );
-		$climate->yellow( "Service agreement:\t" . $project->get_service_agreement() );
-		$climate->yellow( "Hosting agreement:\t" . $project->get_hosting_level_agreement() );
-		$climate->yellow( "Incidents report to:\t" . $project->get_incidents_email_report_client() . "\n" );
+		$climate->green( 'Found these projects:' );
+		foreach ( $projects as $project ) {
+			$climate->yellow( $project->get_name() );
 
-		$climate->green( "SSH to prod:\t\t" . $project->get_ssh_to_prod() );
-		$climate->green( "Web root:\t\t" . $project->get_web_root() );
-		$climate->green( "Prod. server:\t\t" . $project->get_prod_server() );
-		$climate->green( "Reverse proxy:\t\t" . $project->get_reverse_proxy() );
-		$climate->green( "DB instance:\t\t" . $project->get_db_instance() . "\n" );
-
-
-		$climate->red( "Prod URL:\t\t" . $project->get_prod_url() );
-		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() . "\n" );
-
-		if ( $project->get_hosting_notes() ) {
-			$climate->white( 'Hosting notes:' );
-			$climate->white( $project->get_hosting_notes() );
 		}
+
 
 	}
 }

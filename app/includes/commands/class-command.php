@@ -71,7 +71,7 @@ abstract class Command {
 	protected function show_similar_projects( $project_name ) {
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$climate           = $this->get_climate();
-		$projects          = $insightly_service->get_projects_by_name_similarity( $project_name );
+		$projects          = $insightly_service->get_most_similar_project( $project_name );
 
 		$climate->yellow( 'Did you mean any of these projects?' );
 
@@ -84,7 +84,7 @@ abstract class Command {
 		$climate           = $this->get_climate();
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 
-		$similar_projects = $insightly_service->get_projects_by_name_similarity( $name );
+		$similar_projects = $insightly_service->get_most_similar_project( $name );
 
 		if ( count( $similar_projects ) > 1 ) {
 			$climate->green( 'Several similar projects were found. Please be a bit more specific:' );
