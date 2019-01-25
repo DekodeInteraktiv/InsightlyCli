@@ -134,8 +134,6 @@ class InsightlyService {
 		$max_similarity = 0;
 		foreach ( $similarities as $index => $similarity ) {
 
-			print( $projects[ $index ]->get_name() . ': ' . $similarity . "\n" );
-
 			if ( $similarity > $max_similarity ) {
 				$max_similarity = $similarity;
 				$return_array   = [ $projects[ $index ] ];

@@ -144,34 +144,21 @@ class SSHService {
 	public function get_db_details() {
 		$web_root = $this->get_web_root();
 
-		$config_file = $this->ssh->exec( 'cat ' . $web_root . '/../config.php' );
-		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/../.env' );
-		$config_file .= $this->ssh->exec( 'cat ~/config.php' ); // Servebolt
-		$config_file .= $this->ssh->exec( 'cat ' . $web_root . '/*' );
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell --allow-root;' );
+		preg_match( '/DB_HOST: (.*)/', $output, $matches );
+		$db_host = $matches[1];
+		preg_match( '/DB_NAME: (.*)/', $output, $matches );
+		$db_name = $matches[1];
+		preg_match( '/DB_PASSWORD: (.*)/', $output, $matches );
+		$db_password = $matches[1];
+		preg_match( '/DB_USER: (.*)/', $output, $matches );
+		$db_user = $matches[1];
 
-		$config_file = explode( "\n", $config_file );
+		$config['DB_USER']     = $db_user;
+		$config['DB_HOST']     = $db_host;
+		$config['DB_PASSWORD'] = $db_password;
+		$config['DB_NAME']     = $db_name;
 
-
-		foreach ( $config_file as &$line ) {
-			$line = trim( $line );
-			if ( preg_match( '/^#/', $line ) || preg_match( '/^\/\//', $line ) ) {
-				$line = '';
-			}
-		}
-
-		$config = [ 'DB_HOST' => 'localhost' ];
-
-		foreach ( $config_file as $line ) {
-
-			if ( preg_match( '/define\(\s?\'(.*)?\',\s?\'(.*)?(.*)\'\s?\)/', $line, $matches ) ) {
-				$config[ $matches[1] ] = $matches[2];
-			}
-			if ( preg_match( '/^([A-Z_]*)\=(.*)$/', $line, $matches ) ) {
-
-				$config[ $matches[1] ] = $matches[2];
-			}
-
-		}
 
 		$config['table_prefix'] = $this->get_table_prefix();
 
