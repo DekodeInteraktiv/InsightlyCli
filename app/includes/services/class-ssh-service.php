@@ -166,6 +166,11 @@ class SSHService {
 
 	}
 
+	/**
+	 * Tries to find the site's table prefix and returns it.
+	 *
+	 * @return bool
+	 */
 	public function get_table_prefix() {
 		$web_root = $this->get_web_root();
 
@@ -183,6 +188,13 @@ class SSHService {
 	}
 
 
+	/**
+	 * Checks if plugin is installed
+	 *
+	 * @param $slug
+	 *
+	 * @return bool
+	 */
 	public function plugin_is_installed( $slug ) {
 		$web_root = $this->get_web_root();
 		$result   = $this->ssh->exec( 'cd ' . $web_root . ' && find | grep plugins | grep ' . $slug );
@@ -190,6 +202,11 @@ class SSHService {
 		return trim( $result ) != '';
 	}
 
+	/**
+	 * Checks if site is multisite
+	 *
+	 * @return int
+	 */
 	public function is_multisite() {
 		$web_root = $this->get_web_root();
 
@@ -211,6 +228,11 @@ class SSHService {
 
 	}
 
+	/**
+	 * Returns the URL of the main site in a multi-site installation.
+	 *
+	 * @return |null
+	 */
 	public function get_main_site_url_in_multisite() {
 		$web_root = $this->get_web_root();
 
@@ -227,10 +249,18 @@ class SSHService {
 	}
 
 
+	/**
+	 * @param $command
+	 *
+	 * @return string
+	 */
 	public function run_raw_command( $command ) {
 		return $this->ssh->exec( $command );
 	}
 
+	/**
+	 * @return bool|mixed|string
+	 */
 	protected function get_web_root() {
 		$web_root = $this->get_project()->get_web_root();
 
