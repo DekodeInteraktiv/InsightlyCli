@@ -212,9 +212,7 @@ class SSHService {
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MULTISITE: \' . (is_multisite() ? \'1\' : \'0\'));" | wp shell --allow-root' );
 
-		if ( isset( $matches[1] ) ) {
-			preg_match( '/MULTISITE: (\d)/', $output, $matches );
-		}
+		preg_match( '/MULTISITE: (\d)/', $output, $matches );
 
 		if ( isset( $matches[1] ) ) {
 			if ( $matches[1] == 1 ) {
