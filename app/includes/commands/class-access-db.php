@@ -50,10 +50,14 @@ class AccessDb extends Command {
 
 		$ssh_service = new SSHService( $project );
 
-		$db_credentials = $ssh_service->get_db_details();
+		if ( ! $ssh_service->wp_cli_is_installed() ) {
+			$climate->red( 'WP CLI is not installed on remote server. Cannot get DB credentials' );
+		} else {
 
-		$climate->yellow( $project->get_ssh_to_prod() . ' -t \'mysql -h ' . $db_credentials['DB_HOST'] . ' -u ' . $db_credentials['DB_USER'] . ' -p' . $db_credentials['DB_PASSWORD'] . ' ' . $db_credentials['DB_NAME'] . '\'' );
+			$db_credentials = $ssh_service->get_db_details();
 
+			$climate->yellow( $project->get_ssh_to_prod() . ' -t \'mysql -h ' . $db_credentials['DB_HOST'] . ' -u ' . $db_credentials['DB_USER'] . ' -p' . $db_credentials['DB_PASSWORD'] . ' ' . $db_credentials['DB_NAME'] . '\'' );
+		}
 
 	}
 }

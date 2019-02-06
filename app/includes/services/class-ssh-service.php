@@ -145,6 +145,7 @@ class SSHService {
 		$web_root = $this->get_web_root();
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell --allow-root;' );
+
 		preg_match( '/DB_HOST: (.*)/', $output, $matches );
 		$db_host = $matches[1];
 		preg_match( '/DB_NAME: (.*)/', $output, $matches );
@@ -163,6 +164,20 @@ class SSHService {
 		$config['table_prefix'] = $this->get_table_prefix();
 
 		return $config;
+
+	}
+
+	public function wp_cli_is_installed() {
+		$web_root = $this->get_web_root();
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && wp --allow-root;' );
+
+		if ( strpos( $output, 'wp: command not found' ) !== false ) {
+			return false;
+		} else {
+			return true;
+		}
+		
 
 	}
 

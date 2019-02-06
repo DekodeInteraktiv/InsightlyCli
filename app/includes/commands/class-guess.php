@@ -196,49 +196,61 @@ class Guess extends Command {
 
 			}
 
-			$db_details = $ssh_service->get_db_details();
+			$this->climate->green()->inline( 'Checking if wp cli is installed...' );
 
-			if ( isset( $db_details['DB_HOST'] ) ) {
-				$this->climate->green()->inline( 'Guessing that DB host is ' );
-				$this->climate->cyan( $db_details['DB_HOST'] );
+			if ( $ssh_service->wp_cli_is_installed() ) {
+				$this->climate->lightGreen( 'installed' );
+				$wp_cli_installed = true;
 			} else {
-				$this->climate->red( 'Not able to guess DB host.' );
+				$this->climate->red( 'not installed' );
+				$wp_cli_installed = false;
 
 			}
 
+			if ( $wp_cli_installed ) {
+				$db_details = $ssh_service->get_db_details();
 
-			if ( isset( $db_details['DB_NAME'] ) && $db_details['DB_NAME'] ) {
-				$this->climate->green()->inline( 'Guessing that DB name is ' );
-				$this->climate->cyan( $db_details['DB_NAME'] );
-			} else {
-				$this->climate->red( 'Not able to guess DB name.' );
+				if ( isset( $db_details['DB_HOST'] ) ) {
+					$this->climate->green()->inline( 'Guessing that DB host is ' );
+					$this->climate->cyan( $db_details['DB_HOST'] );
+				} else {
+					$this->climate->red( 'Not able to guess DB host.' );
+
+				}
+
+
+				if ( isset( $db_details['DB_NAME'] ) && $db_details['DB_NAME'] ) {
+					$this->climate->green()->inline( 'Guessing that DB name is ' );
+					$this->climate->cyan( $db_details['DB_NAME'] );
+				} else {
+					$this->climate->red( 'Not able to guess DB name.' );
+				}
+
+				if ( isset( $db_details['table_prefix'] ) && $db_details['table_prefix'] ) {
+					$this->climate->green()->inline( 'Guessing that table prefix is ' );
+					$this->climate->cyan( $db_details['table_prefix'] );
+				} else {
+					$this->climate->red( 'Not able to guess table prefix.' );
+				}
+
+				$multisite = $ssh_service->is_multisite();
+				if ( $multisite == SSHService::YES ) {
+					$main_site = $ssh_service->get_main_site_url_in_multisite();
+
+					$this->climate->green()->inline( 'Is ' );
+					$this->climate->lightGreen()->inline( 'multisite. ' );
+					$this->climate->green()->inline( 'Main blog is ' );
+					$this->climate->lightGreen( $main_site );
+
+				} elseif ( $multisite == SSHService::NO ) {
+					$this->climate->green()->inline( 'Is ' );
+					$this->climate->lightGreen( 'single site.' );
+
+				} else {
+					$this->climate->red( 'Unable to guess multisite status.' );
+
+				}
 			}
-
-			if ( isset( $db_details['table_prefix'] ) && $db_details['table_prefix'] ) {
-				$this->climate->green()->inline( 'Guessing that table prefix is ' );
-				$this->climate->cyan( $db_details['table_prefix'] );
-			} else {
-				$this->climate->red( 'Not able to guess table prefix.' );
-			}
-
-			$multisite = $ssh_service->is_multisite();
-			if ( $multisite == SSHService::YES ) {
-				$main_site = $ssh_service->get_main_site_url_in_multisite();
-
-				$this->climate->green()->inline( 'Is ' );
-				$this->climate->lightGreen()->inline( 'multisite. ' );
-				$this->climate->green()->inline( 'Main blog is ' );
-				$this->climate->lightGreen( $main_site );
-
-			} elseif ( $multisite == SSHService::NO ) {
-				$this->climate->green()->inline( 'Is ' );
-				$this->climate->lightGreen( 'single site.' );
-
-			} else {
-				$this->climate->red( 'Unable to guess multisite status.' );
-
-			}
-
 
 			$os = $ssh_service->get_os();
 

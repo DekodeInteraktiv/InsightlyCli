@@ -69,33 +69,38 @@ class DumpDB extends Command {
 
 		$ssh_service = new SSHService( $project );
 
-		$config = $ssh_service->get_db_details();
+		if ( ! $ssh_service->wp_cli_is_installed() ) {
+			$this->climate->red( 'WP CLI is not installed on remote server. Cannot get DB credentials' );
+		} else {
 
-		$required_fields = [
-			'DB_HOST',
-			'DB_USER',
-			'DB_PASSWORD',
-			'DB_NAME'
-		];
 
-		foreach ( $required_fields as $field ) {
+			$config = $ssh_service->get_db_details();
 
-			if ( ! isset( $config[ $field ] ) ) {
-				throw new \Exception( $field . ' value not found in config file' );
+			$required_fields = [
+				'DB_HOST',
+				'DB_USER',
+				'DB_PASSWORD',
+				'DB_NAME'
+			];
+
+			foreach ( $required_fields as $field ) {
+
+				if ( ! isset( $config[ $field ] ) ) {
+					throw new \Exception( $field . ' value not found in config file' );
+				}
 			}
-		}
 
-		$climate = $this->get_climate();
-		$climate->yellow( 'Carefully check these commands and then run them from your prompt:' );
+			$climate = $this->get_climate();
+			$climate->yellow( 'Carefully check these commands and then run them from your prompt:' );
 
-		$uploads_folder = $ssh_service->get_uploads_folder();
-		$web_root       = $ssh_service->guess_web_root();
+			$uploads_folder = $ssh_service->get_uploads_folder();
+			$web_root       = $ssh_service->guess_web_root();
 
-		if ( array_key_exists( 'share', $arguments ) ) {
-			$filename = $this->generate_random_string( 32 ) . ".sql";
-			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $uploads_folder . '/' . $filename . "';" );
+			if ( array_key_exists( 'share', $arguments ) ) {
+				$filename = $this->generate_random_string( 32 ) . ".sql";
+				$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > " . $uploads_folder . '/' . $filename . "';" );
 
-			$php_code = '
+				$php_code = '
 			<?php 
 			if ( !file_exists( "' . $uploads_folder . '/' . $filename . '" ) ) {
 				echo "Dump already gone.";
@@ -110,24 +115,24 @@ class DumpDB extends Command {
 			?>';
 
 
-			$php_code = addslashes( str_replace( "\n", '', str_replace( "\t", '', $php_code ) ) );
+				$php_code = addslashes( str_replace( "\n", '', str_replace( "\t", '', $php_code ) ) );
 
-			$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
-			$climate->output();
+				$climate->green( $project->get_ssh_to_prod() . " 'echo \"" . $php_code . '" > ' . $web_root . '/delete_dump.php\';' );
+				$climate->output();
 
-			$climate->yellow( 'When the  commands have been run, send this message to the person receiving the dump:' );
-			$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $ssh_service->get_uploads_url() . '/' . $filename . '. When you have downloaded it, please go to ' . $project->get_prod_url() . '/delete_dump.php to delete it.' );
+				$climate->yellow( 'When the  commands have been run, send this message to the person receiving the dump:' );
+				$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $ssh_service->get_uploads_url() . '/' . $filename . '. When you have downloaded it, please go to ' . $project->get_prod_url() . '/delete_dump.php to delete it.' );
 
-		} else {
+			} else {
 
-			$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
+				$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
 
-			$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
+				$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
 
-			$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
-			$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
+				$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
+				$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
+			}
 		}
-
 	}
 
 	private function generate_random_string( $length ) {
