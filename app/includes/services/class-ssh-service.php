@@ -144,7 +144,13 @@ class SSHService {
 	public function get_db_details() {
 		$web_root = $this->get_web_root();
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell --allow-root;' );
+		$url_option = '';
+
+		if ( $this->get_project()->get_prod_url() ) {
+			$url_option = ' --url=' . $this->get_project()->get_prod_url();
+		}
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell ' . $url_option . ' --allow-root;' );
 
 		preg_match( '/DB_HOST: (.*)/', $output, $matches );
 		$db_host = $matches[1];
@@ -177,7 +183,7 @@ class SSHService {
 		} else {
 			return true;
 		}
-		
+
 
 	}
 

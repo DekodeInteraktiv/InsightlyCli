@@ -148,6 +148,9 @@ class Guess extends Command {
 
 			}
 
+			$this->climate->green()->inline( 'Guessing web server...' );
+
+			$this->climate->cyan( $this->net_service->get_web_server( $project->get_prod_url() ) );
 
 			if ( $project->get_ssh_to_prod() ) {
 				$this->climate->green()->inline( 'Testing if SSH in Insightly works...' );
