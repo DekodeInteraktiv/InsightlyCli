@@ -319,18 +319,24 @@ class SSHService {
 	 */
 	public function get_wp_users() {
 		$web_root = $this->get_web_root();
+		$headers  = [];
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && wp user list --allow-root' );
 		$output = explode( "\n", $output );
 
-
 		foreach ( $output as $line ) {
-			if ( ! isset( $headers ) ) {
-				$headers = explode( "\t", $line );
+			$properties = explode( "\t", $line );
+
+			if ( count( $properties ) < 4 ) {
+				continue;
+			}
+
+
+			if ( $properties[0] == 'ID' ) {
+				$headers = $properties;
 			} else {
-				$raw_user = explode( "\t", $line );
-				$user     = array();
-				foreach ( $raw_user as $index => $property ) {
+				$user = array();
+				foreach ( $properties as $index => $property ) {
 					if ( trim( $property ) ) {
 						$user[ $headers[ $index ] ] = trim( $property );
 					}
