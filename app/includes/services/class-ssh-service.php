@@ -345,6 +345,43 @@ class SSHService {
 
 	}
 
+	public function get_memory_usage() {
+		$output = $this->ssh->exec( 'free -b' );
+
+		$lines = explode( "\n", $output );
+		unset( $lines[0] );
+
+		foreach ( $lines as $line ) {
+			$properties = explode( " ", $line );
+			$properties = array_filter( $properties );
+			$properties = array_values( $properties );
+
+			if ( count( $properties ) > 2 ) {
+				$label = $properties[0];
+				$total = $properties[1];
+				$used  = $properties[2];
+
+				$label = strtolower( $label );
+				$label = str_replace( ':', '', $label );
+
+				$return_values[ $label ]['total']       = $total;
+				$return_values[ $label ]['total_human'] = $this->human_filesize( $total );
+				$return_values[ $label ]['used']        = $used;
+				$return_values[ $label ]['used_human']  = $this->human_filesize( $used );
+			}
+		}
+
+		return $return_values;
+
+	}
+
+	protected function human_filesize( $bytes, $decimals = 2 ) {
+		$size   = array( 'B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
+		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
+
+		return sprintf( "%.{$decimals}f", $bytes / pow( 1024, $factor ) ) . @$size[ $factor ];
+	}
+
 	/**
 	 * @return mixed
 	 */

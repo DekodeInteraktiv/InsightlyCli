@@ -4,6 +4,7 @@ namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\ServerService;
+use Dekode\InsightlyCli\Services\SSHService;
 
 class CheckLoad extends Command {
 
@@ -46,22 +47,21 @@ class CheckLoad extends Command {
 
 		$climate->green( 'Found ' . $project->get_name() );
 
-		$server_service = new ServerService();
-		$net_service    = new NetService();
+		$ssh_service = new SSHService( $project );
 
-		$ssh_command = $project->get_ssh_to_prod();
+		$memory_usage = $ssh_service->get_memory_usage();
 
-		list( $tmp, $host ) = explode( '@', $ssh_command );
+		foreach ( $memory_usage as $key => $memory_type ) {
+			$memory['Type']            = $key;
+			$memory['Total']           = $memory_type['total_human'];
+			$memory['Used']            = $memory_type['used_human'];
+			$memory['Percentage used'] = round( $memory_type['used'] / $memory_type['total'] * 100 ) . '%';
 
-		if ( ! $net_service->is_ip( $host ) ) {
-			$ip = gethostbyname( $host );
-		} else {
-			$ip = $host;
+			$memory_for_output[] = $memory;
+
 		}
 
-		$server = $server_service->find_server_by_ip( $ip );
-
-		print_r( $server );
+		$climate->table( $memory_for_output );
 
 	}
 }
