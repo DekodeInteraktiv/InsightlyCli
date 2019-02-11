@@ -31,7 +31,7 @@ class Users extends Command {
 	 * @return string
 	 */
 	public function get_help(): string {
-		$help = "Usage:\nisc admins <name of project>\n\n";
+		$help = "Usage:\nisc users <name of project> --role=<role>\n\n";
 
 		return $help;
 
