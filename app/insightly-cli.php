@@ -1,6 +1,6 @@
 <?php
 
-define( 'APP_VERSION', '1.9.1' );
+define( 'APP_VERSION', '1.10.0' );
 
 require( 'vendor/autoload.php' );
 require( 'config.php' );
@@ -41,6 +41,7 @@ require( __DIR__ . '/includes/commands/class-access-db.php' );
 require( __DIR__ . '/includes/commands/class-sanity-check.php' );
 require( __DIR__ . '/includes/commands/class-dekodemon-activate.php' );
 require( __DIR__ . '/includes/commands/class-dekodemon-sanity-check.php' );
+require( __DIR__ . '/includes/commands/class-users.php' );
 
 
 $core = new \Dekode\InsightlyCli\Core( [
@@ -55,7 +56,8 @@ $core = new \Dekode\InsightlyCli\Core( [
 	new \Dekode\InsightlyCli\Commands\AccessDb(),
 	new \Dekode\InsightlyCli\Commands\SanityCheck(),
 	//new \Dekode\InsightlyCli\Commands\DekodemonActivate(),
-	new \Dekode\InsightlyCli\Commands\DekodemonSanityCheck()
+	new \Dekode\InsightlyCli\Commands\DekodemonSanityCheck(),
+	new \Dekode\InsightlyCli\Commands\Users()
 ] );
 
 if ( $argv[0] == 'php' ) {

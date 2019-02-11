@@ -311,6 +311,40 @@ class SSHService {
 		return trim( $owner );
 	}
 
+
+	/**
+	 * Returns a list of all users.
+	 *
+	 * @return string
+	 */
+	public function get_wp_users() {
+		$web_root = $this->get_web_root();
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && wp user list --allow-root' );
+		$output = explode( "\n", $output );
+
+
+		foreach ( $output as $line ) {
+			if ( ! isset( $headers ) ) {
+				$headers = explode( "\t", $line );
+			} else {
+				$raw_user = explode( "\t", $line );
+				$user     = array();
+				foreach ( $raw_user as $index => $property ) {
+					if ( trim( $property ) ) {
+						$user[ $headers[ $index ] ] = trim( $property );
+					}
+				}
+				if ( count( $user ) ) {
+					$users[] = $user;
+				}
+			}
+		}
+
+		return $users;
+
+	}
+
 	/**
 	 * @return mixed
 	 */
