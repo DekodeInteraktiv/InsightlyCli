@@ -380,7 +380,66 @@ class SSHService {
 
 	}
 
-	protected function human_filesize( $bytes, $decimals = 2 ) {
+	public function get_cpu_load() {
+		$output = $this->ssh->exec( 'top -b -n 1' );
+
+		$output = explode( "\n", $output );
+
+		foreach ( $output as $line ) {
+			if ( preg_match( '/^\%Cpu\(s\).*?([\d\.]*?) id/', $line, $matches ) ) {
+
+				$return_array         = [];
+				$return_array['idle'] = $matches[1];
+				$return_array['used'] = 100 - $matches[1];
+
+				break;
+			}
+		}
+
+		return $return_array;
+	}
+
+	public function get_disk_space() {
+		$disks = [];
+
+		$output = $this->ssh->exec( 'df -B1' );
+
+		$output = explode( "\n", $output );
+
+		foreach ( $output as $line ) {
+			$properties = explode( " ", $line );
+
+			if ( count( $properties ) < 3 ) {
+				continue;
+			}
+
+			foreach ( $properties as $index => $property ) {
+				if ( trim( $property ) === '' ) {
+					unset( $properties[ $index ] );
+				}
+			}
+
+			$properties = array_values( $properties );
+
+			if ( ! isset( $headers ) ) {
+				$headers = $properties;
+				unset( $headers[6] );
+
+			} else {
+				$disk = [];
+				foreach ( $headers as $index => $header ) {
+					$disk[ $header ] = $properties[ $index ];
+				}
+
+				$disks[] = $disk;
+			}
+		}
+
+		return $disks;
+
+	}
+
+	public function human_filesize( $bytes, $decimals = 2 ) {
 		$size   = array( 'B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
 		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
 

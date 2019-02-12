@@ -63,5 +63,41 @@ class CheckLoad extends Command {
 
 		$climate->table( $memory_for_output );
 
+		$cpu_load = $ssh_service->get_cpu_load();
+
+		$climate->green( "\n" . 'CPU is ' . $cpu_load['idle'] . '% idle.' );
+
+		$disks = $ssh_service->get_disk_space();
+
+		foreach ( $disks as $index => &$disk ) {
+			if ( $disk['Mounted'] != '/' && strpos( $disk['Mounted'], 'mnt' ) === false ) {
+				unset( $disks[ $index ] );
+				continue;
+			}
+
+			unset( $disk['1B-blocks'] );
+
+			$disk['Used']      = $ssh_service->human_filesize( $disk['Used'] );
+			$disk['Available'] = $ssh_service->human_filesize( $disk['Available'] );
+
+			$use = str_replace( '%', '', $disk['Use%'] );
+
+			$color = 'green';
+
+			if ( $use > 50 ) {
+				$color = 'yellow';
+			}
+
+			if ( $use > 90 ) {
+				$color = 'red';
+			}
+
+			$disk['Use%'] = '<' . $color . '>' . $disk['Use%'] . '</' . $color . '>';
+
+
+		}
+		$climate->table( $disks );
+
+
 	}
 }
