@@ -60,6 +60,12 @@ class SSHService {
 			$line           = false;
 
 			foreach ( $web_server_conf_lines as $line ) {
+
+				// Skip commented out lines
+				if ( strpos( trim( $line ), '#' ) === 0 ) {
+					continue;
+				}
+
 				// Nginx
 				if ( preg_match( '/listen (\d{2,3})/', $line, $matches ) ) {
 					$port = $matches[1];
@@ -81,7 +87,6 @@ class SSHService {
 				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
 					$found_domain = true;
 				}
-
 
 				if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
 
