@@ -84,7 +84,6 @@ class DumpDB extends Command {
 			];
 
 			foreach ( $required_fields as $field ) {
-
 				if ( ! isset( $config[ $field ] ) ) {
 					throw new \Exception( $field . ' value not found in config file' );
 				}
@@ -124,13 +123,20 @@ class DumpDB extends Command {
 				$climate->green( 'Hi! Your dump is ready and can be downloaded at ' . $ssh_service->get_uploads_url() . '/' . $filename . '. When you have downloaded it, please go to ' . $project->get_prod_url() . '/delete_dump.php to delete it.' );
 
 			} else {
+				$filename = $project->get_prod_domain();
 
-				$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $project->get_prod_domain() . '.sql\';' );
+				if ( ! trim( $filename ) ) {
+					$filename = "database-dump";
+				}
+
+				$filename .= '.sql';
+
+				$climate->green( $project->get_ssh_to_prod() . " 'mysqldump -h " . $config['DB_HOST'] . ' -u ' . $config['DB_USER'] . ' -p' . $config['DB_PASSWORD'] . ' ' . $config['DB_NAME'] . " > ~/" . $filename . '\';' );
 
 				$ssh_username_and_host = trim( str_replace( 'ssh', '', $project->get_ssh_to_prod() ) );
 
-				$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $project->get_prod_domain() . '.sql .;' );
-				$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $project->get_prod_domain() . '.sql\';' );
+				$climate->green( 'scp -C ' . $ssh_username_and_host . ":~/" . $filename . ' .;' );
+				$climate->green( $project->get_ssh_to_prod() . " 'rm ~/" . $filename . '\';' );
 			}
 		}
 	}
