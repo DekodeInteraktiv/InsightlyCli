@@ -60,6 +60,12 @@ class SSHService {
 			$line           = false;
 
 			foreach ( $web_server_conf_lines as $line ) {
+
+				// Skip commented out lines
+				if ( strpos( trim( $line ), '#' ) === 0 ) {
+					continue;
+				}
+
 				// Nginx
 				if ( preg_match( '/listen (\d{2,3})/', $line, $matches ) ) {
 					$port = $matches[1];
@@ -81,7 +87,6 @@ class SSHService {
 				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
 					$found_domain = true;
 				}
-
 
 				if ( $found_domain && $port == 443 && ( strpos( $line, 'root' ) || strpos( $line, 'DocumentRoot' ) ) && strpos( $line, '#' ) === false ) {
 
@@ -349,6 +354,102 @@ class SSHService {
 
 		return $users;
 
+	}
+
+	public function get_memory_usage() {
+		$output = $this->ssh->exec( 'free -b' );
+
+		$lines = explode( "\n", $output );
+		unset( $lines[0] );
+
+		foreach ( $lines as $line ) {
+			$properties = explode( " ", $line );
+			$properties = array_filter( $properties );
+			$properties = array_values( $properties );
+
+			if ( count( $properties ) > 2 ) {
+				$label = $properties[0];
+				$total = $properties[1];
+				$used  = $properties[2];
+
+				$label = strtolower( $label );
+				$label = str_replace( ':', '', $label );
+
+				$return_values[ $label ]['total']       = $total;
+				$return_values[ $label ]['total_human'] = $this->human_filesize( $total );
+				$return_values[ $label ]['used']        = $used;
+				$return_values[ $label ]['used_human']  = $this->human_filesize( $used );
+			}
+		}
+
+		return $return_values;
+
+	}
+
+	public function get_cpu_load() {
+		$output = $this->ssh->exec( 'top -b -n 1' );
+
+		$output = explode( "\n", $output );
+
+		foreach ( $output as $line ) {
+			if ( preg_match( '/^\%Cpu\(s\).*?([\d\.]*?) id/', $line, $matches ) ) {
+
+				$return_array         = [];
+				$return_array['idle'] = $matches[1];
+				$return_array['used'] = 100 - $matches[1];
+
+				break;
+			}
+		}
+
+		return $return_array;
+	}
+
+	public function get_disk_space() {
+		$disks = [];
+
+		$output = $this->ssh->exec( 'df -B1' );
+
+		$output = explode( "\n", $output );
+
+		foreach ( $output as $line ) {
+			$properties = explode( " ", $line );
+
+			if ( count( $properties ) < 3 ) {
+				continue;
+			}
+
+			foreach ( $properties as $index => $property ) {
+				if ( trim( $property ) === '' ) {
+					unset( $properties[ $index ] );
+				}
+			}
+
+			$properties = array_values( $properties );
+
+			if ( ! isset( $headers ) ) {
+				$headers = $properties;
+				unset( $headers[6] );
+
+			} else {
+				$disk = [];
+				foreach ( $headers as $index => $header ) {
+					$disk[ $header ] = $properties[ $index ];
+				}
+
+				$disks[] = $disk;
+			}
+		}
+
+		return $disks;
+
+	}
+
+	public function human_filesize( $bytes, $decimals = 2 ) {
+		$size   = array( 'B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
+		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
+
+		return sprintf( "%.{$decimals}f", $bytes / pow( 1024, $factor ) ) . @$size[ $factor ];
 	}
 
 	/**

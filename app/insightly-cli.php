@@ -21,6 +21,7 @@ require( __DIR__ . '/includes/services/class-operating-system-service.php' );
 require( __DIR__ . '/includes/services/class-ssh-service.php' );
 require( __DIR__ . '/includes/services/class-net-service.php' );
 require( __DIR__ . '/includes/services/class-dekodemon-service.php' );
+require( __DIR__ . '/includes/services/class-server-service.php' );
 
 // Operating systems
 require( __DIR__ . '/includes/operating-systems/class-operating-system.php' );
@@ -29,18 +30,19 @@ require( __DIR__ . '/includes/operating-systems/class-mac.php' );
 
 // Commands
 require( __DIR__ . '/includes/commands/class-command.php' );
-require( __DIR__ . '/includes/commands/class-info.php' );
-require( __DIR__ . '/includes/commands/class-find.php' );
-require( __DIR__ . '/includes/commands/class-ssh.php' );
-require( __DIR__ . '/includes/commands/class-rebuild-cache.php' );
-require( __DIR__ . '/includes/commands/class-update.php' );
-require( __DIR__ . '/includes/commands/class-browse.php' );
-require( __DIR__ . '/includes/commands/class-guess.php' );
-require( __DIR__ . '/includes/commands/class-dump-db.php' );
 require( __DIR__ . '/includes/commands/class-access-db.php' );
-require( __DIR__ . '/includes/commands/class-sanity-check.php' );
+require( __DIR__ . '/includes/commands/class-browse.php' );
 require( __DIR__ . '/includes/commands/class-dekodemon-activate.php' );
 require( __DIR__ . '/includes/commands/class-dekodemon-sanity-check.php' );
+require( __DIR__ . '/includes/commands/class-dump-db.php' );
+require( __DIR__ . '/includes/commands/class-find.php' );
+require( __DIR__ . '/includes/commands/class-guess.php' );
+require( __DIR__ . '/includes/commands/class-info.php' );
+require( __DIR__ . '/includes/commands/class-check-load.php' );
+require( __DIR__ . '/includes/commands/class-rebuild-cache.php' );
+require( __DIR__ . '/includes/commands/class-sanity-check.php' );
+require( __DIR__ . '/includes/commands/class-ssh.php' );
+require( __DIR__ . '/includes/commands/class-update.php' );
 require( __DIR__ . '/includes/commands/class-users.php' );
 
 
@@ -57,7 +59,8 @@ $core = new \Dekode\InsightlyCli\Core( [
 	new \Dekode\InsightlyCli\Commands\SanityCheck(),
 	//new \Dekode\InsightlyCli\Commands\DekodemonActivate(),
 	new \Dekode\InsightlyCli\Commands\DekodemonSanityCheck(),
-	new \Dekode\InsightlyCli\Commands\Users()
+	new \Dekode\InsightlyCli\Commands\Users(),
+	new \Dekode\InsightlyCli\Commands\CheckLoad()
 ] );
 
 if ( $argv[0] == 'php' ) {

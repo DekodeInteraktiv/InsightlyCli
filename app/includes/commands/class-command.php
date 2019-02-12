@@ -2,6 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
+use Dekode\InsightlyCli\Models\Project;
 use Dekode\InsightlyCli\Services\InsightlyService;
 
 abstract class Command {
@@ -80,7 +81,7 @@ abstract class Command {
 		}
 	}
 
-	protected function get_most_similar_project_or_die( $name ) {
+	protected function get_most_similar_project_or_die( $name ): Project {
 		$climate           = $this->get_climate();
 		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 

@@ -3,12 +3,10 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Models\Project;
-use Dekode\InsightlyCli\Models\RackspaceLoadBalancer;
 use Dekode\InsightlyCli\Services\DekodemonService;
-use Dekode\InsightlyCli\Services\DigitalOceanService;
 use Dekode\InsightlyCli\Services\InsightlyService;
 use Dekode\InsightlyCli\Services\NetService;
-use Dekode\InsightlyCli\Services\RackspaceService;
+use Dekode\InsightlyCli\Services\ServerService;
 use Dekode\InsightlyCli\Services\SSHService;
 use GuzzleHttp\Exception\ClientException;
 
@@ -54,6 +52,7 @@ class Guess extends Command {
 
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->net_service       = new NetService();
+		$this->server_service    = new ServerService();
 
 		$arguments = $this->get_arguments();
 
@@ -61,11 +60,6 @@ class Guess extends Command {
 			$projects = $this->insightly_service->get_projects();
 
 			$sites = [];
-			foreach ( $projects as $project ) {
-				if ( $project->get_name() != 'frokosten.no' ) {
-					$sites[] = $project->get_name();
-				}
-			}
 		} else {
 			$sites = array_slice( $arguments, 2 );
 		}
@@ -82,8 +76,6 @@ class Guess extends Command {
 		if ( ! defined( 'DIGITAL_OCEAN_API_KEY' ) ) {
 			$this->climate->red( 'Missing Digital Ocean API key. Rackspace servers and load balancers will not be loaded.' );
 		}
-
-		$this->get_servers();
 
 		foreach ( $sites as $site ) {
 
@@ -118,7 +110,8 @@ class Guess extends Command {
 			$this->climate->green()->inline( 'Guessing that IP address is ' );
 			$this->climate->cyan( $ip );
 
-			$server = $this->guess_production_server( $ip );
+
+			$server = $this->server_service->guess_production_server( $ip );
 
 			if ( $server['status'] == 0 ) {
 				$provider = $this->net_service->guess_provider_by_ip( $ip );
@@ -299,42 +292,6 @@ class Guess extends Command {
 
 
 	/**
-	 * Gets all servers from all our service providers.
-	 *
-	 * @return array
-	 */
-	private function get_servers(): array {
-
-		if ( ! $this->servers ) {
-
-			$rackspace_servers        = [];
-			$rackspace_load_balancers = [];
-			$digital_ocean_servers    = [];
-
-			if ( defined( 'RACKSPACE_USERNAME' ) && RACKSPACE_USERNAME && defined( 'RACKSPACE_API_KEY' ) && RACKSPACE_API_KEY ) {
-
-				$this->rackspace_service  = new RackspaceService( RACKSPACE_USERNAME, RACKSPACE_API_KEY );
-				$rackspace_load_balancers = $this->rackspace_service->get_load_balancers();
-				$rackspace_servers        = $this->rackspace_service->get_servers();
-			}
-
-			if ( defined( 'DIGITAL_OCEAN_API_KEY' ) && DIGITAL_OCEAN_API_KEY ) {
-				$this->digital_ocean_service = new DigitalOceanService( DIGITAL_OCEAN_API_KEY );
-				$digital_ocean_servers       = $this->digital_ocean_service->get_servers();
-			}
-
-			$servers = array_merge( $rackspace_servers, $digital_ocean_servers, $rackspace_load_balancers );
-
-			$this->servers = $servers;
-
-		}
-
-		return $this->servers;
-
-
-	}
-
-	/**
 	 * If there is no production URL in Insightly, sometimes the name of the project is the production URL. Try that, and if successful, save.
 	 *
 	 * @param Project $project
@@ -356,32 +313,6 @@ class Guess extends Command {
 				return $url;
 			}
 		}
-
-	}
-
-	/**
-	 * Try to find the IP address/host name of the server and save the ssh command.
-	 *
-	 * @param Project $project
-	 */
-	private function guess_production_server( $ip ) {
-
-		$server = $this->find_server_by_ip( $ip );
-
-		if ( ! $server ) {
-			$reverse_proxy = $this->net_service->find_reverse_proxy( $ip );
-
-			if ( $reverse_proxy ) {
-
-				return [ 'status' => 0, 'message' => 'Found reverse proxy: ' . $reverse_proxy ];
-
-			}
-
-
-			return [ 'status' => 0, 'message' => 'Could not find server for IP ' . $ip ];
-		}
-
-		return [ 'status' => 1, 'server' => $server ];
 
 	}
 
@@ -417,51 +348,6 @@ class Guess extends Command {
 			if ( $ip ) {
 				return $ip;
 			}
-		}
-
-	}
-
-	/**
-	 * Loops through our list of servers trying to find a server which matches a specific IP address.
-	 *
-	 * @param string $ip The IP address to find.
-	 *
-	 * @return mixed
-	 */
-	private function find_server_by_ip( string $ip ) {
-		$climate = $this->get_climate();
-		$servers = $this->get_servers();
-
-		$found = false;
-		foreach ( $servers as $server ) {
-			if ( $ip == $server->get_public_ip() ) {
-				$found = true;
-				break;
-			}
-			if ( $ip == $server->get_private_ip() ) {
-				$found = true;
-				break;
-			}
-
-		}
-
-		if ( ! $found ) {
-			return false;
-		}
-
-		if ( $server instanceof RackspaceLoadBalancer ) {
-
-			$ips = $server->get_nodes();
-
-			foreach ( $ips as $ip ) {
-				$node = $this->find_server_by_ip( $ip );
-				if ( $node && strpos( $node->get_name(), 'slave' ) === false ) { // We want to avoid the slave nodes.
-					return $node;
-				}
-			}
-
-		} else {
-			return $server;
 		}
 
 	}
