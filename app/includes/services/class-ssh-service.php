@@ -155,22 +155,32 @@ class SSHService {
 			$url_option = ' --url=' . $this->get_project()->get_prod_url();
 		}
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell ' . $url_option . ' --allow-root;' );
+		// Try both with and without --url flag.
+		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell ' . $url_option . ' --allow-root;';
+		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell --allow-root;';
 
-		preg_match( '/DB_HOST: (.*)/', $output, $matches );
-		$db_host = $matches[1];
-		preg_match( '/DB_NAME: (.*)/', $output, $matches );
-		$db_name = $matches[1];
-		preg_match( '/DB_PASSWORD: (.*)/', $output, $matches );
-		$db_password = $matches[1];
-		preg_match( '/DB_USER: (.*)/', $output, $matches );
-		$db_user = $matches[1];
+		foreach ($commands as $command) {
 
-		$config['DB_USER']     = $db_user;
-		$config['DB_HOST']     = $db_host;
-		$config['DB_PASSWORD'] = $db_password;
-		$config['DB_NAME']     = $db_name;
+			$output = $this->ssh->exec( $command );
 
+			preg_match( '/DB_HOST: (.*)/', $output, $matches );
+			$db_host = $matches[1];
+			preg_match( '/DB_NAME: (.*)/', $output, $matches );
+			$db_name = $matches[1];
+			preg_match( '/DB_PASSWORD: (.*)/', $output, $matches );
+			$db_password = $matches[1];
+			preg_match( '/DB_USER: (.*)/', $output, $matches );
+			$db_user = $matches[1];
+
+			$config['DB_USER']     = $db_user;
+			$config['DB_HOST']     = $db_host;
+			$config['DB_PASSWORD'] = $db_password;
+			$config['DB_NAME']     = $db_name;
+
+			if ($config['DB_USER']) {
+				break;
+			}
+		}
 
 		$config['table_prefix'] = $this->get_table_prefix();
 
