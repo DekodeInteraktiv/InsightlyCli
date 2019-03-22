@@ -1,6 +1,6 @@
 <?php
 
-define( 'APP_VERSION', '1.10.0' );
+define( 'APP_VERSION', '1.11.0' );
 
 require( 'vendor/autoload.php' );
 require( 'config.php' );
