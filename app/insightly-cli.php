@@ -38,6 +38,7 @@ require( __DIR__ . '/includes/commands/class-dump-db.php' );
 require( __DIR__ . '/includes/commands/class-find.php' );
 require( __DIR__ . '/includes/commands/class-guess.php' );
 require( __DIR__ . '/includes/commands/class-info.php' );
+require( __DIR__ . '/includes/commands/class-ls.php' );
 require( __DIR__ . '/includes/commands/class-check-load.php' );
 require( __DIR__ . '/includes/commands/class-rebuild-cache.php' );
 require( __DIR__ . '/includes/commands/class-sanity-check.php' );
@@ -60,7 +61,8 @@ $core = new \Dekode\InsightlyCli\Core( [
 	//new \Dekode\InsightlyCli\Commands\DekodemonActivate(),
 	new \Dekode\InsightlyCli\Commands\DekodemonSanityCheck(),
 	new \Dekode\InsightlyCli\Commands\Users(),
-	new \Dekode\InsightlyCli\Commands\CheckLoad()
+	new \Dekode\InsightlyCli\Commands\CheckLoad(),
+	new \Dekode\InsightlyCli\Commands\Ls()
 ] );
 
 if ( $argv[0] == 'php' ) {
