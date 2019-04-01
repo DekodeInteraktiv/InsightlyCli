@@ -147,17 +147,12 @@ class SSHService {
 	 * @return array
 	 */
 	public function get_db_details() {
+		$wp_cli_command = $this->get_wp_cli_command();
+
 		$web_root = $this->get_web_root();
 
-		$url_option = '';
-
-		if ( $this->get_project()->get_prod_url() ) {
-			$url_option = ' --url=' . $this->get_project()->get_prod_url();
-		}
-
 		// Try both with and without --url flag.
-		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell ' . $url_option . ' --allow-root;';
-		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | wp shell --allow-root;';
+		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | ' . $wp_cli_command . ' shell ;';
 
 		foreach ($commands as $command) {
 
@@ -188,10 +183,14 @@ class SSHService {
 
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function wp_cli_is_installed() {
 		$web_root = $this->get_web_root();
+		$wp_cli_command = $this->get_wp_cli_command();
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && wp --allow-root;' );
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && ' . $wp_cli_command . ';' );
 
 		if ( strpos( $output, 'wp: command not found' ) !== false ) {
 			return false;
@@ -209,8 +208,9 @@ class SSHService {
 	 */
 	public function get_table_prefix() {
 		$web_root = $this->get_web_root();
+		$wp_cli_command = $this->get_wp_cli_command();
 
-		$command = 'cd ' . $web_root . ' && echo \'global $wpdb; print("TABLE PREFIX: " . $wpdb->base_prefix);\' | wp shell --allow-root';
+		$command = 'cd ' . $web_root . ' && echo \'global $wpdb; print("TABLE PREFIX: " . $wpdb->base_prefix);\' | ' . $wp_cli_command . ' shell';
 		$output  = $this->ssh->exec( $command );
 
 		preg_match( '/TABLE PREFIX: (.*)/', $output, $matches );
@@ -245,8 +245,9 @@ class SSHService {
 	 */
 	public function is_multisite() {
 		$web_root = $this->get_web_root();
+		$wp_cli_command = $this->get_wp_cli_command();
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MULTISITE: \' . (is_multisite() ? \'1\' : \'0\'));" | wp shell --allow-root' );
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MULTISITE: \' . (is_multisite() ? \'1\' : \'0\'));" | ' . $wp_cli_command . ' shell' );
 
 		preg_match( '/MULTISITE: (\d)/', $output, $matches );
 
@@ -269,8 +270,9 @@ class SSHService {
 	 */
 	public function get_main_site_url_in_multisite() {
 		$web_root = $this->get_web_root();
+		$wp_cli_command = $this->get_wp_cli_command();
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MAIN_URL: \' . network_site_url());" | wp shell --allow-root' );
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MAIN_URL: \' . network_site_url());" | ' . $wp_cli_command . ' shell' );
 
 		preg_match( '/MAIN_URL: (.*)/', $output, $matches );
 
@@ -306,6 +308,67 @@ class SSHService {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function get_absolute_web_root() {
+		$web_root = $this->get_web_root();
+
+		if (strpos($web_root, '~') === 0) {
+			$absolute_web_root = $this->ssh->exec('cd ' . $web_root . ' && pwd');
+		} else {
+			$absolute_web_root = $web_root;
+		}
+
+		return trim($absolute_web_root);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get_wp_cli_command() {
+		$wp_core_path = $this->get_path_of_wp_core();
+
+		$cmd = 'wp  --allow-root ';
+
+		if($wp_core_path) {
+			$cmd .= ' --path="' . $wp_core_path . '"';
+		}
+
+		return $cmd;
+
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get_path_of_wp_core() {
+		$web_root = $this->get_absolute_web_root();
+
+		$cmd = 'cd ' . $web_root . ' && ls';
+
+		$content = $this->ssh->exec($cmd );
+
+		$files = explode("\n", $content);
+
+		$wp_path = '';
+
+		foreach($files as $file) {
+			if (trim($file) == 'wp') {
+				$wp_path = $file;
+			}
+		}
+
+		if ($wp_path) {
+			$wp_path = $web_root . '/' . $wp_path;
+			$wp_path = $this->ssh->exec('cd ' . $wp_path . ' && pwd -P');
+		} else {
+			$wp_path = $web_root;
+		}
+
+		return trim($wp_path);
+	}
+
+	/**
 	 * Will try to find the OS the site runs on and return it.
 	 *
 	 * @return string
@@ -336,7 +399,9 @@ class SSHService {
 		$web_root = $this->get_web_root();
 		$headers  = [];
 
-		$output = $this->ssh->exec( 'cd ' . $web_root . ' && wp user list --allow-root' );
+		$wp_cli_command = $this->get_wp_cli_command();
+
+		$output = $this->ssh->exec( 'cd ' . $web_root . ' && ' . $wp_cli_command . ' user list' );
 		$output = explode( "\n", $output );
 
 		foreach ( $output as $line ) {
@@ -366,6 +431,9 @@ class SSHService {
 
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function get_memory_usage() {
 		$output = $this->ssh->exec( 'free -b' );
 
@@ -396,6 +464,9 @@ class SSHService {
 
 	}
 
+	/**
+	 * @return array
+	 */
 	public function get_cpu_load() {
 		$output = $this->ssh->exec( 'top -b -n 1' );
 
@@ -415,6 +486,9 @@ class SSHService {
 		return $return_array;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function get_disk_space() {
 		$disks = [];
 
@@ -455,6 +529,12 @@ class SSHService {
 
 	}
 
+	/**
+	 * @param $bytes
+	 * @param int $decimals
+	 *
+	 * @return string
+	 */
 	public function human_filesize( $bytes, $decimals = 2 ) {
 		$size   = array( 'B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
 		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
