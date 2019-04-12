@@ -17,7 +17,7 @@ class SSHService {
 	/**
 	 * SSHService constructor.
 	 *
-	 * @param Project $project
+	 * @param  Project $project
 	 */
 	public function __construct( Project $project ) {
 		$ssh = $project->get_ssh_to_prod();
@@ -49,6 +49,10 @@ class SSHService {
 	public function guess_web_root() {
 
 		if ( ! isset( $this->web_root ) ) {
+
+			if ( ! trim( $this->get_project()->get_prod_domain() ) ) {
+				throw new Exception( 'No production domain on site.' );
+			}
 
 			$web_server_conf_files = $this->ssh->exec( 'cat /etc/nginx/sites.d/*' );
 			$web_server_conf_files .= $this->ssh->exec( 'cat /etc/apache2/sites-enabled/*' );
@@ -85,6 +89,7 @@ class SSHService {
 				}
 
 				if ( strpos( $line, ' ' . $this->get_project()->get_prod_domain() ) ) {
+
 					$found_domain = true;
 				}
 
@@ -120,7 +125,9 @@ class SSHService {
 	 * @return string
 	 */
 	public function get_uploads_folder() {
-		$web_root       = $this->guess_web_root();
+		$web_root = $this->guess_web_root();
+
+		print( $web_root . "\n" );
 		$uploads_folder = $this->ssh->exec( 'find ' . $web_root . ' -name uploads' );
 
 		return trim( $uploads_folder );
@@ -154,7 +161,7 @@ class SSHService {
 		// Try both with and without --url flag.
 		$commands[] = 'cd ' . $web_root . ' && echo "print(\'DB_HOST: \' . DB_HOST . \"\n\" . \'DB_NAME: \' . DB_NAME . \"\n\" . \'DB_PASSWORD: \' . DB_PASSWORD . \"\n\" . \'DB_USER: \' . DB_USER);" | ' . $wp_cli_command . ' shell ;';
 
-		foreach ($commands as $command) {
+		foreach ( $commands as $command ) {
 
 			$output = $this->ssh->exec( $command );
 
@@ -172,7 +179,7 @@ class SSHService {
 			$config['DB_PASSWORD'] = $db_password;
 			$config['DB_NAME']     = $db_name;
 
-			if ($config['DB_USER']) {
+			if ( $config['DB_USER'] ) {
 				break;
 			}
 		}
@@ -187,7 +194,7 @@ class SSHService {
 	 * @return bool
 	 */
 	public function wp_cli_is_installed() {
-		$web_root = $this->get_web_root();
+		$web_root       = $this->get_web_root();
 		$wp_cli_command = $this->get_wp_cli_command();
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && ' . $wp_cli_command . ';' );
@@ -207,7 +214,7 @@ class SSHService {
 	 * @return bool
 	 */
 	public function get_table_prefix() {
-		$web_root = $this->get_web_root();
+		$web_root       = $this->get_web_root();
 		$wp_cli_command = $this->get_wp_cli_command();
 
 		$command = 'cd ' . $web_root . ' && echo \'global $wpdb; print("TABLE PREFIX: " . $wpdb->base_prefix);\' | ' . $wp_cli_command . ' shell';
@@ -244,7 +251,7 @@ class SSHService {
 	 * @return int
 	 */
 	public function is_multisite() {
-		$web_root = $this->get_web_root();
+		$web_root       = $this->get_web_root();
 		$wp_cli_command = $this->get_wp_cli_command();
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MULTISITE: \' . (is_multisite() ? \'1\' : \'0\'));" | ' . $wp_cli_command . ' shell' );
@@ -269,7 +276,7 @@ class SSHService {
 	 * @return |null
 	 */
 	public function get_main_site_url_in_multisite() {
-		$web_root = $this->get_web_root();
+		$web_root       = $this->get_web_root();
 		$wp_cli_command = $this->get_wp_cli_command();
 
 		$output = $this->ssh->exec( 'cd ' . $web_root . ' && echo "print(\'MAIN_URL: \' . network_site_url());" | ' . $wp_cli_command . ' shell' );
@@ -313,13 +320,13 @@ class SSHService {
 	protected function get_absolute_web_root() {
 		$web_root = $this->get_web_root();
 
-		if (strpos($web_root, '~') === 0) {
-			$absolute_web_root = $this->ssh->exec('cd ' . $web_root . ' && pwd');
+		if ( strpos( $web_root, '~' ) === 0 ) {
+			$absolute_web_root = $this->ssh->exec( 'cd ' . $web_root . ' && pwd' );
 		} else {
 			$absolute_web_root = $web_root;
 		}
 
-		return trim($absolute_web_root);
+		return trim( $absolute_web_root );
 	}
 
 	/**
@@ -330,7 +337,7 @@ class SSHService {
 
 		$cmd = 'wp  --allow-root ';
 
-		if($wp_core_path) {
+		if ( $wp_core_path ) {
 			$cmd .= ' --path="' . $wp_core_path . '"';
 		}
 
@@ -346,26 +353,26 @@ class SSHService {
 
 		$cmd = 'cd ' . $web_root . ' && ls';
 
-		$content = $this->ssh->exec($cmd );
+		$content = $this->ssh->exec( $cmd );
 
-		$files = explode("\n", $content);
+		$files = explode( "\n", $content );
 
 		$wp_path = '';
 
-		foreach($files as $file) {
-			if (trim($file) == 'wp') {
+		foreach ( $files as $file ) {
+			if ( trim( $file ) == 'wp' ) {
 				$wp_path = $file;
 			}
 		}
 
-		if ($wp_path) {
+		if ( $wp_path ) {
 			$wp_path = $web_root . '/' . $wp_path;
-			$wp_path = $this->ssh->exec('cd ' . $wp_path . ' && pwd -P');
+			$wp_path = $this->ssh->exec( 'cd ' . $wp_path . ' && pwd -P' );
 		} else {
 			$wp_path = $web_root;
 		}
 
-		return trim($wp_path);
+		return trim( $wp_path );
 	}
 
 	/**
@@ -530,8 +537,8 @@ class SSHService {
 	}
 
 	/**
-	 * @param $bytes
-	 * @param int $decimals
+	 * @param      $bytes
+	 * @param  int $decimals
 	 *
 	 * @return string
 	 */
@@ -550,7 +557,7 @@ class SSHService {
 	}
 
 	/**
-	 * @param mixed $project
+	 * @param  mixed $project
 	 */
 	public function set_project( Project $project ) {
 		$this->project = $project;
