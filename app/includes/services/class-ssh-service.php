@@ -127,7 +127,6 @@ class SSHService {
 	public function get_uploads_folder() {
 		$web_root = $this->guess_web_root();
 
-		print( $web_root . "\n" );
 		$uploads_folder = $this->ssh->exec( 'find ' . $web_root . ' -name uploads' );
 
 		return trim( $uploads_folder );
