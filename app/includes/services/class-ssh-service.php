@@ -456,6 +456,10 @@ class SSHService {
 				$total = $properties[1];
 				$used  = $properties[2];
 
+				if ( ! is_numeric( $total ) || ! is_numeric( $used ) ) {
+					continue;
+				}
+
 				$label = strtolower( $label );
 				$label = str_replace( ':', '', $label );
 
