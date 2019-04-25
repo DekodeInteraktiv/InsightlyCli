@@ -11,6 +11,12 @@ class InsightlyService {
 	private $api_key;
 
 	/**
+	 * Constants used by free text searches to specify where the match was done.
+	 */
+	const SEARCH_KEY_RELATED_DOMAIN = 1;
+	const SEARCH_KEY_PROJECT_NAME = 2;
+
+	/**
 	 * InsightlyService constructor.
 	 *
 	 * @param $api_key
@@ -74,35 +80,75 @@ class InsightlyService {
 	/**
 	 * Searches through all projects and returns an array of projects with at least 50% similarity.
 	 *
-	 * @param $name
+	 * @param $query_string
 	 *
 	 * @return array
 	 */
-	public function get_projects_by_name_similarity( $name ) {
-		$projects     = $this->get_projects();
-		$name         = strtolower( $name );
+	public function get_projects_by_search_string( $query_string ) {
+		$query_string = strtolower( $query_string );
 		$similarities = [];
 		$return_array = [];
 
-		foreach ( $projects as $index => $project ) {
+		$search_strings = $this->get_all_searchable_strings();
 
-			similar_text( $name, strtolower( $project->get_name() ), $similarity );
+		foreach ( $search_strings as $index => $search_string ) {
+			similar_text( $query_string, strtolower( trim( $search_string['string'] ) ), $similarity );
 
-			if ( stripos( $project->get_name(), $name ) !== false ) {
+			if ( stripos( $search_string['string'], $query_string ) !== false ) {
 				$similarities[ $index ] = 90;
 			} else {
 				$similarities[ $index ] = $similarity;
-
 			}
 		}
 
 		arsort( $similarities );
 
 		foreach ( $similarities as $index => $similarity ) {
-			$return_array[] = $projects[ $index ];
+
+			$matched_string = $search_strings[ $index ];
+
+			$tmp            = [];
+			$tmp['project'] = $matched_string['project'];;
+			$tmp['similarity']            = $similarity;
+			$tmp['match_found_in_key']    = $matched_string['key'];
+			$tmp['match_found_in_string'] = $matched_string['string'];
+
+			$return_array[] = $tmp;
 		}
 
 		return $return_array;
+
+	}
+
+	/**
+	 * Will return an array of all strings on which a free text search can be performed, with the property 'key' denoting where they can be found.
+	 *
+	 * @return array
+	 */
+	protected function get_all_searchable_strings() {
+		$projects           = $this->get_projects();
+		$searchable_strings = [];
+
+		foreach ( $projects as $index => $project ) {
+			$searchable_string            = [];
+			$searchable_string['string']  = $project->get_name();
+			$searchable_string['key']     = self::SEARCH_KEY_PROJECT_NAME;
+			$searchable_string['project'] = $project;
+
+			$searchable_strings[] = $searchable_string;
+
+			foreach ( $project->get_related_domains() as $domain ) {
+
+				$searchable_string            = [];
+				$searchable_string['string']  = $domain;
+				$searchable_string['key']     = self::SEARCH_KEY_RELATED_DOMAIN;
+				$searchable_string['project'] = $project;
+
+				$searchable_strings[] = $searchable_string;
+			}
+		}
+
+		return $searchable_strings;
 
 	}
 
@@ -118,42 +164,30 @@ class InsightlyService {
 		$name         = strtolower( $name );
 		$similarities = [];
 		$return_array = [];
-
 		foreach ( $projects as $index => $project ) {
-
 			similar_text( $name, strtolower( $project->get_name() ), $similarity );
-
 			if ( $similarity > 50 ) {
 				$similarities[ $index ] = $similarity;
 			}
-
 		}
-
 		arsort( $similarities );
-
 		$max_similarity = 0;
 		foreach ( $similarities as $index => $similarity ) {
-
 			if ( $similarity > $max_similarity ) {
 				$max_similarity = $similarity;
 				$return_array   = [ $projects[ $index ] ];
 			} elseif ( $similarity == $max_similarity ) {
 				$return_array[] = $projects[ $index ];
-
 			}
-
-
 		}
 
 		return $return_array;
-
 	}
-
 
 	/**
 	 * Saves the passed project.
 	 *
-	 * @param Project $project
+	 * @param  Project $project
 	 *
 	 * @throws \GuzzleHttp\Exception\GuzzleException
 	 */
@@ -192,8 +226,8 @@ class InsightlyService {
 	/**
 	 * Makes the actual request to the API.
 	 *
-	 * @param       $endpoint
-	 * @param array $args
+	 * @param        $endpoint
+	 * @param  array $args
 	 *
 	 * @return mixed
 	 * @throws \GuzzleHttp\Exception\GuzzleException
@@ -220,7 +254,7 @@ class InsightlyService {
 	/**
 	 * Converts the output from the Insightly API to a Project object.
 	 *
-	 * @param \stdClass $insightly_project
+	 * @param  \stdClass $insightly_project
 	 *
 	 * @return Project
 	 */
@@ -256,6 +290,9 @@ class InsightlyService {
 					case 'Prod_url__c':
 						$project->set_prod_url( $custom_field->FIELD_VALUE );
 						break;
+					case 'Related_domains__c':
+						$project->set_related_domains( explode( "\n", $custom_field->FIELD_VALUE ) );
+						break;
 					case 'Hosting_note__c':
 						$project->set_hosting_notes( $custom_field->FIELD_VALUE );
 						break;
@@ -281,7 +318,6 @@ class InsightlyService {
 
 			}
 		}
-
 
 		return $project;
 	}
@@ -321,7 +357,7 @@ class InsightlyService {
 	}
 
 	/**
-	 * @param mixed $api_key
+	 * @param  mixed $api_key
 	 */
 	public function set_api_key( $api_key ) {
 		$this->api_key = $api_key;

@@ -71,7 +71,13 @@ class Info extends Command {
 
 
 		$climate->red( "Prod URL:\t\t" . $project->get_prod_url() );
-		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() . "\n" );
+		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() );
+
+		if ( count( $project->get_related_domains() ) ) {
+			$climate->red( "Related domains:\t" . join( ', ', $project->get_related_domains() ) );
+		}
+
+		echo "\n";
 
 		if ( $project->get_hosting_notes() ) {
 			$climate->white( 'Hosting notes:' );

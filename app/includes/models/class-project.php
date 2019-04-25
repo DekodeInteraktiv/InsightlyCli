@@ -22,6 +22,7 @@ class Project {
 	private $incidents_email_report_client;
 	private $web_root;
 	private $terminated;
+	private $related_domains = [];
 
 	/**
 	 * Will create an object of type SSHServer ready to be passed to the SSHService.
@@ -282,6 +283,24 @@ class Project {
 	 */
 	public function set_terminated( $terminated ): void {
 		$this->terminated = $terminated;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function get_related_domains(): array {
+		if (!$this->related_domains) {
+			return [];
+		} else {
+			return $this->related_domains;
+		}
+	}
+
+	/**
+	 * @param  mixed $related_domains
+	 */
+	public function set_related_domains( array $related_domains ) {
+		$this->related_domains = $related_domains;
 	}
 
 

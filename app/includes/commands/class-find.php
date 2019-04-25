@@ -49,11 +49,18 @@ class Find extends Command {
 			exit;
 		}
 
-		$projects = $insightly_service->get_projects_by_name_similarity( $this->get_arguments()[2] );
+		$projects = $insightly_service->get_projects_by_search_string( $this->get_arguments()[2] );
 
 		$climate->green( 'Found these projects:' );
 		for ( $i = 0; $i < 10; $i ++ ) {
-			$climate->yellow( $projects[ $i ]->get_name() );
+			$climate->yellow()->inline( $projects[ $i ]['project']->get_name() );
+
+			if ( $projects[ $i ]['match_found_in_key'] == InsightlyService::SEARCH_KEY_RELATED_DOMAIN )  {
+				$climate->lightGreen( ' (Related domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
+			} else {
+				echo "\n";
+			}
+
 
 		}
 
