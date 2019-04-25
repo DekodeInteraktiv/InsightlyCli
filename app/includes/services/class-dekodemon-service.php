@@ -3,6 +3,7 @@
 namespace Dekode\InsightlyCli\Services;
 
 use Dekode\InsightlyCli\Models\Project;
+use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Namshi\Cuzzle\Formatter\CurlFormatter;
@@ -29,7 +30,7 @@ class DekodemonService {
 	public function plugin_is_installed() {
 
 		try {
-			@$ssh_service = new SSHService( $this->get_project() );
+			@$ssh_service = new SSHService( $this->get_project()->convert_to_ssh_server() );
 		} catch ( Exception $e ) {
 			return $this::CANNOT_DETERMINE;
 		}

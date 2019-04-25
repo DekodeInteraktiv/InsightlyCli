@@ -5,6 +5,7 @@ namespace Dekode\InsightlyCli\Commands;
 use Dekode\InsightlyCli\Models\Project;
 use Dekode\InsightlyCli\Services\InsightlyService;
 
+
 abstract class Command {
 	private $arguments;
 
@@ -109,6 +110,25 @@ abstract class Command {
 
 	}
 
+	protected function get_exact_project_or_die( $name ): Project {
+		if ( trim( $name ) ) {
+			$project = $this->insightly_service->get_project_by_name( $name );
+			if ( ! $project ) {
+				$this->climate->error( 'Could not find that project.' );
+				$this->climate->output();
+				$this->show_similar_projects( $name );
+				exit;
+			}
+
+		} else {
+			$this->climate->error( 'No project was specified.' );
+			exit;
+		}
+
+		return $project;
+
+	}
+
 
 	/**
 	 * @return array
@@ -118,7 +138,7 @@ abstract class Command {
 	}
 
 	/**
-	 * @param array $arguments
+	 * @param  array $arguments
 	 */
 	public function set_arguments( array $arguments ) {
 

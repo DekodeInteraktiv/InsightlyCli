@@ -7,7 +7,7 @@ use Dekode\InsightlyCli\Services\DekodemonService;
 use Dekode\InsightlyCli\Services\InsightlyService;
 use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\ServerService;
-use Dekode\InsightlyCli\Services\SSHService;
+use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Exception\ClientException;
 
 class Guess extends Command {
@@ -125,7 +125,7 @@ class Guess extends Command {
 			} else {
 				$server = $server['server'];
 				$this->climate->green()->inline( 'Guessing that server is located at ' );
-				$this->climate->cyan( $server->get_provider_name() . ' / ' . $server->get_insightly_name() );
+				$this->climate->cyan( $server->get_provider_name() . ' / ' . $server->get_name() );
 			}
 
 			$this->climate->green()->inline( 'Dekode monitoring tool endpoint is ' );
@@ -150,7 +150,7 @@ class Guess extends Command {
 
 				$ssh_failed = false;
 				try {
-					@$ssh_service = new SSHService( $project );
+					@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 					$this->climate->lightGreen( 'success' );
 				} catch ( \Exception $e ) {
 					$this->climate->red( 'failed' );
@@ -167,7 +167,7 @@ class Guess extends Command {
 				$this->climate->green()->inline( 'Guessing SSH command: ' . $guessed_ssh_command . '...' );
 				$project->set_ssh_to_prod( $guessed_ssh_command );
 				try {
-					@$ssh_service = new SSHService( $project );
+					@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 					$this->climate->lightGreen( 'success' );
 					$ssh_failed = false;
 				} catch ( \Exception $e ) {

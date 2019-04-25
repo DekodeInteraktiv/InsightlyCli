@@ -3,8 +3,8 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\OperatingSystemService;
-use Dekode\InsightlyCli\Services\SSHService;
+use Dekode\RemoteServers\Services\SSHService;
+
 
 class ListDbServers extends Command {
 
@@ -54,7 +54,7 @@ class ListDbServers extends Command {
 			$db_details = [];
 
 			try {
-				@$ssh_service = new SSHService( $project );
+				@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 
 				@$db_details = $ssh_service->get_db_details();
 			} catch (\Exception $e) {

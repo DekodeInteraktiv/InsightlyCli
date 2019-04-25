@@ -1,6 +1,6 @@
 <?php
 
-define( 'APP_VERSION', '1.12.3' );
+define( 'APP_VERSION', '2.0.1' );
 
 require( 'vendor/autoload.php' );
 require( 'config.php' );
@@ -8,17 +8,10 @@ require( __DIR__ . '/includes/class-core.php' );
 
 // Models
 require( __DIR__ . '/includes/models/class-project.php' );
-require( __DIR__ . '/includes/models/class-server.php' );
-require( __DIR__ . '/includes/models/class-digital-ocean-droplet.php' );
-require( __DIR__ . '/includes/models/class-rackspace-server.php' );
-require( __DIR__ . '/includes/models/class-rackspace-load-balancer.php' );
 
 // Services
 require( __DIR__ . '/includes/services/class-insightly-service.php' );
-require( __DIR__ . '/includes/services/class-digital-ocean-service.php' );
-require( __DIR__ . '/includes/services/class-rackspace-service.php' );
 require( __DIR__ . '/includes/services/class-operating-system-service.php' );
-require( __DIR__ . '/includes/services/class-ssh-service.php' );
 require( __DIR__ . '/includes/services/class-net-service.php' );
 require( __DIR__ . '/includes/services/class-dekodemon-service.php' );
 require( __DIR__ . '/includes/services/class-server-service.php' );

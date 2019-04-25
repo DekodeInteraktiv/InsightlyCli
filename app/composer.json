@@ -1,11 +1,19 @@
 {
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        },
+        {
+            "type": "composer",
+            "url": "https://composer.dekodes.no/"
+        }
+    ],
     "name": "dekode/insightly-cli",
     "type": "project",
     "require": {
-        "guzzlehttp/guzzle": "^6.3",
         "league/climate": "^3.4",
-        "novutec/whoisparser": "^3.2",
-        "phpseclib/phpseclib": "^2.0"
+        "dekode/remote-servers": "^1.0"
     },
     "authors": [
         {

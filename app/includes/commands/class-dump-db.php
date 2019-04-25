@@ -3,7 +3,8 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\SSHService;
+use Dekode\RemoteServers\Services\SSHService;
+
 
 class DumpDB extends Command {
 
@@ -52,22 +53,12 @@ class DumpDB extends Command {
 
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 
+
 		$arguments = $this->get_arguments();
-		if ( isset( $arguments[2] ) ) {
-			$project = $this->insightly_service->get_project_by_name( $arguments[2] );
-			if ( ! $project ) {
-				$this->climate->error( 'Could not find that project.' );
-				$this->climate->output();
-				$this->show_similar_projects( $arguments[2] );
-				exit;
-			}
 
-		} else {
-			$this->climate->error( 'No project was specified.' );
-			exit;
-		}
+		$project = $this->get_exact_project_or_die( $arguments[2] );
 
-		$ssh_service = new SSHService( $project );
+		$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 
 		if ( ! $ssh_service->wp_cli_is_installed() ) {
 			$this->climate->red( 'WP CLI is not installed on remote server. Cannot get DB credentials' );

@@ -2,6 +2,8 @@
 
 namespace Dekode\InsightlyCli\Models;
 
+use Dekode\RemoteServers\Models\SSHServer;
+
 class Project {
 
 	private $id;
@@ -22,6 +24,21 @@ class Project {
 	private $terminated;
 
 	/**
+	 * Will create an object of type SSHServer ready to be passed to the SSHService.
+	 *
+	 * @return SSHServer
+	 */
+	public function convert_to_ssh_server() {
+		$ssh_server = new SSHServer();
+		$ssh_server->set_ssh_command( $this->get_ssh_to_prod() );
+		$ssh_server->set_domain( $this->get_prod_domain() );
+		$ssh_server->set_production_url( $this->get_prod_url() );
+		$ssh_server->set_web_root( $this->get_web_root() );
+
+		return $ssh_server;
+	}
+
+	/**
 	 * @return mixed
 	 */
 	public function get_id() {
@@ -29,7 +46,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $id
+	 * @param  mixed $id
 	 */
 	public function set_id( $id ) {
 		$this->id = $id;
@@ -43,7 +60,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $name
+	 * @param  mixed $name
 	 */
 	public function set_name( $name ) {
 		$this->name = $name;
@@ -57,7 +74,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $responsible_advisor
+	 * @param  mixed $responsible_advisor
 	 */
 	public function set_responsible_advisor( $responsible_advisor ) {
 		$this->responsible_advisor = $responsible_advisor;
@@ -71,7 +88,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $reverse_proxy
+	 * @param  mixed $reverse_proxy
 	 */
 	public function set_reverse_proxy( $reverse_proxy ) {
 		$this->reverse_proxy = $reverse_proxy;
@@ -85,7 +102,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $ssh_to_prod
+	 * @param  mixed $ssh_to_prod
 	 */
 	public function set_ssh_to_prod( $ssh_to_prod ) {
 		$this->ssh_to_prod = $ssh_to_prod;
@@ -99,12 +116,15 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $prod_server
+	 * @param  mixed $prod_server
 	 */
 	public function set_prod_server( $prod_server ) {
 		$this->prod_server = $prod_server;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function get_insightly_url() {
 		return "https://crm.na1.insightly.com/details/Project/" . $this->get_id();
 	}
@@ -117,7 +137,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $db_instance
+	 * @param  mixed $db_instance
 	 */
 	public function set_db_instance( $db_instance ) {
 		$this->db_instance = $db_instance;
@@ -131,7 +151,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $stage_url
+	 * @param  mixed $stage_url
 	 */
 	public function set_stage_url( $stage_url ) {
 		$this->stage_url = $stage_url;
@@ -145,7 +165,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $prod_url
+	 * @param  mixed $prod_url
 	 */
 	public function set_prod_url( $prod_url ) {
 		$this->prod_url = $prod_url;
@@ -174,7 +194,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $project_manager
+	 * @param  mixed $project_manager
 	 */
 	public function set_project_manager( $project_manager ) {
 		$this->project_manager = $project_manager;
@@ -188,7 +208,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $hosting_notes
+	 * @param  mixed $hosting_notes
 	 */
 	public function set_hosting_notes( $hosting_notes ) {
 		$this->hosting_notes = $hosting_notes;
@@ -202,7 +222,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $service_agreement
+	 * @param  mixed $service_agreement
 	 */
 	public function set_service_agreement( $service_agreement ) {
 		$this->service_agreement = $service_agreement;
@@ -216,7 +236,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $hosting_level_agreement
+	 * @param  mixed $hosting_level_agreement
 	 */
 	public function set_hosting_level_agreement( $hosting_level_agreement ) {
 		$this->hosting_level_agreement = $hosting_level_agreement;
@@ -230,7 +250,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $incidents_email_report_client
+	 * @param  mixed $incidents_email_report_client
 	 */
 	public function set_incidents_email_report_client( $incidents_email_report_client ) {
 		$this->incidents_email_report_client = $incidents_email_report_client;
@@ -244,7 +264,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $web_root
+	 * @param  mixed $web_root
 	 */
 	public function set_web_root( $web_root ) {
 		$this->web_root = $web_root;
@@ -258,7 +278,7 @@ class Project {
 	}
 
 	/**
-	 * @param mixed $terminated
+	 * @param  mixed $terminated
 	 */
 	public function set_terminated( $terminated ): void {
 		$this->terminated = $terminated;

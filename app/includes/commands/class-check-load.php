@@ -2,9 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\NetService;
-use Dekode\InsightlyCli\Services\ServerService;
-use Dekode\InsightlyCli\Services\SSHService;
+use Dekode\RemoteServers\Services\SSHService;
 
 class CheckLoad extends Command {
 
@@ -47,7 +45,7 @@ class CheckLoad extends Command {
 
 		$climate->green( 'Found ' . $project->get_name() );
 
-		$ssh_service = new SSHService( $project );
+		$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 
 		$memory_usage = $ssh_service->get_memory_usage();
 

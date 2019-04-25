@@ -2,15 +2,11 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Models\Project;
-use Dekode\InsightlyCli\Models\RackspaceLoadBalancer;
 use Dekode\InsightlyCli\Services\DekodemonService;
 use Dekode\InsightlyCli\Services\DigitalOceanService;
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\RackspaceService;
-use Dekode\InsightlyCli\Services\SSHService;
-use GuzzleHttp\Exception\ClientException;
+use Dekode\RemoteServers\Services\SSHService;
 
 class DekodemonActivate extends Command {
 
@@ -121,7 +117,7 @@ class DekodemonActivate extends Command {
 
 				$this->climate->green( 'Plugin is installed' );
 
-				$ssh_service = new SSHService( $project );
+				$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 
 				$is_multisite = $ssh_service->is_multisite();
 

@@ -4,7 +4,7 @@ namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\DekodemonService;
 use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\SSHService;
+use Dekode\RemoteServers\Services\SSHService;
 
 class DekodemonSanityCheck extends Command {
 
@@ -80,7 +80,7 @@ class DekodemonSanityCheck extends Command {
 
 				}
 
-				$ssh_service  = new SSHService( $project );
+				$ssh_service = new SSHService( $project->convert_to_ssh_server() );
 				$is_multisite = $ssh_service->is_multisite();
 
 				if ( $is_multisite ) {
