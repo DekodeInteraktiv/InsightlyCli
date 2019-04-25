@@ -74,7 +74,10 @@ class Info extends Command {
 		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() );
 
 		if ( count( $project->get_related_domains() ) ) {
-			$climate->red( "Related domains:\t" . join( ', ', $project->get_related_domains() ) );
+			$climate->red( "Related domains:" );
+			$related_domains = $project->get_related_domains();
+			sort( $related_domains );
+			$climate->white( '   ' . join( "\n   ", $related_domains ) );
 		}
 
 		echo "\n";

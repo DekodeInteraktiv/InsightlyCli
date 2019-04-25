@@ -289,7 +289,7 @@ class Project {
 	 * @return mixed
 	 */
 	public function get_related_domains(): array {
-		if (!$this->related_domains) {
+		if ( ! $this->related_domains ) {
 			return [];
 		} else {
 			return $this->related_domains;
