@@ -3,6 +3,7 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\RemoteServers\Services\SSHService;
+use Dekode\Insightly\InsightlyService;
 
 class AccessDb extends Command {
 
@@ -47,7 +48,7 @@ class AccessDb extends Command {
 
 		$climate->green( 'Found ' . $project->get_name() );
 
-		$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+		$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 
 		if ( ! $ssh_service->wp_cli_is_installed() ) {
 			$climate->red( 'WP CLI is not installed on remote server. Cannot get DB credentials' );

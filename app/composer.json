@@ -9,6 +9,7 @@
             "url": "https://composer.dekodes.no/"
         }
     ],
+    "minimum-stability": "stable",
     "name": "dekode/insightly-cli",
     "type": "project",
     "require": {
