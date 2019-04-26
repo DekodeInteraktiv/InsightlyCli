@@ -2,13 +2,13 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Models\Project;
 use Dekode\InsightlyCli\Services\DekodemonService;
-use Dekode\InsightlyCli\Services\InsightlyService;
 use Dekode\InsightlyCli\Services\NetService;
 use Dekode\InsightlyCli\Services\ServerService;
 use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Exception\ClientException;
+use Dekode\Insightly\InsightlyService;
+use Dekode\Insightly\Models\Project;
 
 class Guess extends Command {
 
@@ -150,7 +150,7 @@ class Guess extends Command {
 
 				$ssh_failed = false;
 				try {
-					@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+					@$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 					$this->climate->lightGreen( 'success' );
 				} catch ( \Exception $e ) {
 					$this->climate->red( 'failed' );
@@ -294,7 +294,7 @@ class Guess extends Command {
 	/**
 	 * If there is no production URL in Insightly, sometimes the name of the project is the production URL. Try that, and if successful, save.
 	 *
-	 * @param Project $project
+	 * @param  Project $project
 	 *
 	 * @return array|null
 	 */
@@ -319,7 +319,7 @@ class Guess extends Command {
 	/**
 	 * Tries to get the IP address of the projects host name.
 	 *
-	 * @param Project $project
+	 * @param  Project $project
 	 *
 	 * @return string
 	 */
@@ -355,7 +355,7 @@ class Guess extends Command {
 	/**
 	 * Fetches a URL.
 	 *
-	 * @param string $url
+	 * @param  string $url
 	 *
 	 * @return \GuzzleHttp\Psr7\Response
 	 * @throws \GuzzleHttp\Exception\GuzzleException

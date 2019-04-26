@@ -4,7 +4,6 @@ namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\DekodemonService;
 use Dekode\InsightlyCli\Services\DigitalOceanService;
-use Dekode\InsightlyCli\Services\InsightlyService;
 use Dekode\InsightlyCli\Services\RackspaceService;
 use Dekode\RemoteServers\Services\SSHService;
 

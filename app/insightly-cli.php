@@ -1,16 +1,12 @@
 <?php
 
-define( 'APP_VERSION', '2.1' );
+define( 'APP_VERSION', '2.2' );
 
 require( 'vendor/autoload.php' );
 require( 'config.php' );
 require( __DIR__ . '/includes/class-core.php' );
 
-// Models
-require( __DIR__ . '/includes/models/class-project.php' );
-
 // Services
-require( __DIR__ . '/includes/services/class-insightly-service.php' );
 require( __DIR__ . '/includes/services/class-operating-system-service.php' );
 require( __DIR__ . '/includes/services/class-net-service.php' );
 require( __DIR__ . '/includes/services/class-dekodemon-service.php' );

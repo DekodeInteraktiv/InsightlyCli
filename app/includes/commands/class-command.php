@@ -2,9 +2,9 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Models\Project;
-use Dekode\InsightlyCli\Services\InsightlyService;
-
+use Dekode\Insightly\Models\Project;
+use Dekode\Insightly\InsightlyService;
+use Dekode\RemoteServers\Models\SSHServer;
 
 abstract class Command {
 	private $arguments;
@@ -127,6 +127,21 @@ abstract class Command {
 
 		return $project;
 
+	}
+
+	/**
+	 * Will create an object of type SSHServer ready to be passed to the SSHService.
+	 *
+	 * @return SSHServer
+	 */
+	protected function convert_to_ssh_server( Project $project ) {
+		$ssh_server = new SSHServer();
+		$ssh_server->set_ssh_command( $project->get_ssh_to_prod() );
+		$ssh_server->set_domain( $project->get_prod_domain() );
+		$ssh_server->set_production_url( $project->get_prod_url() );
+		$ssh_server->set_web_root( $project->get_web_root() );
+
+		return $ssh_server;
 	}
 
 

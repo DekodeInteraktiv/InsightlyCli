@@ -13,7 +13,8 @@
     "type": "project",
     "require": {
         "league/climate": "^3.4",
-        "dekode/remote-servers": "^1.0"
+        "dekode/remote-servers": "^1.0",
+        "dekode/insightly-service": "^1.1"
     },
     "authors": [
         {

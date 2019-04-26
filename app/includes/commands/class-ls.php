@@ -2,8 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\InsightlyService;
-use Dekode\InsightlyCli\Services\OperatingSystemService;
+use Dekode\Insightly\InsightlyService;
 
 class Ls extends Command {
 

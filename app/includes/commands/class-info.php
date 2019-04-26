@@ -2,7 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\InsightlyService;
+use Dekode\Insightly\InsightlyService;
 
 class Info extends Command {
 

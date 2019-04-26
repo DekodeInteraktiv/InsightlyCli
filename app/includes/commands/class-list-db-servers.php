@@ -2,9 +2,8 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\InsightlyService;
 use Dekode\RemoteServers\Services\SSHService;
-
+use Dekode\Insightly\InsightlyService;
 
 class ListDbServers extends Command {
 
@@ -54,18 +53,18 @@ class ListDbServers extends Command {
 			$db_details = [];
 
 			try {
-				@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+				@$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 
 				@$db_details = $ssh_service->get_db_details();
-			} catch (\Exception $e) {
+			} catch ( \Exception $e ) {
 				$db_details['DB_HOST'] = 'Error: ' . $e->getMessage();
 			}
 
-			if (!$db_details['DB_HOST']) {
+			if ( ! $db_details['DB_HOST'] ) {
 				$db_details['DB_HOST'] = 'Unknown or localhost';
 			}
 
-			print($project->get_name() . ': ' . $db_details['DB_HOST'] . "\n");
+			print( $project->get_name() . ': ' . $db_details['DB_HOST'] . "\n" );
 		}
 
 

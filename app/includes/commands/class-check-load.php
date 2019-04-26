@@ -45,7 +45,7 @@ class CheckLoad extends Command {
 
 		$climate->green( 'Found ' . $project->get_name() );
 
-		$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+		$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 
 		$memory_usage = $ssh_service->get_memory_usage();
 

@@ -149,6 +149,8 @@ class ServerService {
 
 		file_put_contents( $tmp_filename, serialize( $servers ) );
 
+		return $servers;
+
 	}
 
 	/**

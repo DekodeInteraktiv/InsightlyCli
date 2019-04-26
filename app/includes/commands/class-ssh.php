@@ -2,8 +2,6 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\InsightlyService;
-
 class SSH extends Command {
 
 	/**

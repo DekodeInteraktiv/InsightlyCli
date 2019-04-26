@@ -2,7 +2,7 @@
 
 namespace Dekode\InsightlyCli\Services;
 
-use Dekode\InsightlyCli\Models\Project;
+use Dekode\Insightly\Models\Project;
 use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;

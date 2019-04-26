@@ -4,8 +4,47 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "860319dafb5872dfb7d14e31a5706c2d",
+    "content-hash": "512148da7db32ecd5907371d536fd0e7",
     "packages": [
+        {
+            "name": "dekode/insightly-service",
+            "version": "1.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:DekodeInteraktiv/insightly-service.git",
+                "reference": "25588c5fa055a69c9b484c353be1ce4c7fbcfbb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://composer.dekodes.no/dist/dekode/insightly-service/dekode-insightly-service-25588c5fa055a69c9b484c353be1ce4c7fbcfbb3-zip-d47ac0.zip",
+                "reference": "25588c5fa055a69c9b484c353be1ce4c7fbcfbb3",
+                "shasum": "47244d318be13569bc79fe105bbf8424b7b9fbf7"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dekode\\Insightly\\": "src/"
+                }
+            },
+            "license": [
+                "Dekode"
+            ],
+            "authors": [
+                {
+                    "name": "Rasmus Rimestad",
+                    "email": "rasmus@dekode.no"
+                }
+            ],
+            "description": "A wrapper to communicate with the Insightly API.",
+            "support": {
+                "source": "https://github.com/DekodeInteraktiv/insightly-service/tree/master",
+                "issues": "https://github.com/DekodeInteraktiv/insightly-service/issues"
+            },
+            "time": "2019-04-26T10:35:24+00:00"
+        },
         {
             "name": "dekode/remote-servers",
             "version": "1.0.3",

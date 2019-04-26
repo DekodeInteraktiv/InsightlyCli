@@ -2,7 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\InsightlyCli\Services\InsightlyService;
+use Dekode\Insightly\InsightlyService;
 use Dekode\RemoteServers\Services\SSHService;
 
 
@@ -58,7 +58,7 @@ class DumpDB extends Command {
 
 		$project = $this->get_exact_project_or_die( $arguments[2] );
 
-		$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+		$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 
 		if ( ! $ssh_service->wp_cli_is_installed() ) {
 			$this->climate->red( 'WP CLI is not installed on remote server. Cannot get DB credentials' );
