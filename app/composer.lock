@@ -8,17 +8,17 @@
     "packages": [
         {
             "name": "dekode/insightly-service",
-            "version": "1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "git@github.com:DekodeInteraktiv/insightly-service.git",
-                "reference": "25588c5fa055a69c9b484c353be1ce4c7fbcfbb3"
+                "reference": "874e217c989ce60274a171c18a67ca6610faec28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.dekodes.no/dist/dekode/insightly-service/dekode-insightly-service-25588c5fa055a69c9b484c353be1ce4c7fbcfbb3-zip-d47ac0.zip",
-                "reference": "25588c5fa055a69c9b484c353be1ce4c7fbcfbb3",
-                "shasum": "47244d318be13569bc79fe105bbf8424b7b9fbf7"
+                "url": "https://composer.dekodes.no/dist/dekode/insightly-service/dekode-insightly-service-874e217c989ce60274a171c18a67ca6610faec28-zip-3fa120.zip",
+                "reference": "874e217c989ce60274a171c18a67ca6610faec28",
+                "shasum": "e858c7e246bf22b51c51148d56110e67ee75dc3d"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3"
@@ -40,10 +40,10 @@
             ],
             "description": "A wrapper to communicate with the Insightly API.",
             "support": {
-                "source": "https://github.com/DekodeInteraktiv/insightly-service/tree/master",
+                "source": "https://github.com/DekodeInteraktiv/insightly-service/tree/1.1.2",
                 "issues": "https://github.com/DekodeInteraktiv/insightly-service/issues"
             },
-            "time": "2019-04-26T10:35:24+00:00"
+            "time": "2019-04-26T11:17:02+00:00"
         },
         {
             "name": "dekode/remote-servers",
