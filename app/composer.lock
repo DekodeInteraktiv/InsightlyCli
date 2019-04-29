@@ -47,17 +47,17 @@
         },
         {
             "name": "dekode/remote-servers",
-            "version": "1.2",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:DekodeInteraktiv/remote-servers.git",
-                "reference": "8fde24c24edc2c78b783fdeefc4d260f015593e3"
+                "reference": "83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-8fde24c24edc2c78b783fdeefc4d260f015593e3-zip-cebf52.zip",
-                "reference": "8fde24c24edc2c78b783fdeefc4d260f015593e3",
-                "shasum": "89ab5636f0e6b2e7e6e1b62b303639094d23fd1d"
+                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9-zip-0da35d.zip",
+                "reference": "83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9",
+                "shasum": "47f7d377fe44dfb8ff1ae9384356d87cd39ed4db"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -81,10 +81,10 @@
             ],
             "description": "A service which lets you talk to the APIs of our server providers and a library of tools to interact with the servers through SSH.",
             "support": {
-                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.2",
+                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.2.1",
                 "issues": "https://github.com/DekodeInteraktiv/remote-servers/issues"
             },
-            "time": "2019-04-29T10:16:59+00:00"
+            "time": "2019-04-29T10:27:25+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
