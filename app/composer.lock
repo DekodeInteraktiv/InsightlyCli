@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "512148da7db32ecd5907371d536fd0e7",
+    "content-hash": "4457bf5b2aef0b8fb467e81864b3ef21",
     "packages": [
         {
             "name": "dekode/insightly-service",
@@ -47,17 +47,17 @@
         },
         {
             "name": "dekode/remote-servers",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "git@github.com:DekodeInteraktiv/remote-servers.git",
-                "reference": "16330dbe9bbc1acfd250eaf2b96f473949d52915"
+                "reference": "c170f6cc26d2c3f04a596e0e17259dfea603139f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-16330dbe9bbc1acfd250eaf2b96f473949d52915-zip-870d1a.zip",
-                "reference": "16330dbe9bbc1acfd250eaf2b96f473949d52915",
-                "shasum": "87161f1510040ffdb5242d8d93ee9f86fb456e4f"
+                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-c170f6cc26d2c3f04a596e0e17259dfea603139f-zip-e91ce7.zip",
+                "reference": "c170f6cc26d2c3f04a596e0e17259dfea603139f",
+                "shasum": "f6dd816aa4046ac77f89fe2a537b85e87ab06cc5"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -81,10 +81,10 @@
             ],
             "description": "A service which lets you talk to the APIs of our server providers and a library of tools to interact with the servers through SSH.",
             "support": {
-                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.0.3",
+                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.0.4",
                 "issues": "https://github.com/DekodeInteraktiv/remote-servers/issues"
             },
-            "time": "2019-04-23T10:49:29+00:00"
+            "time": "2019-04-29T08:32:07+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
