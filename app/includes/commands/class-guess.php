@@ -3,16 +3,14 @@
 namespace Dekode\InsightlyCli\Commands;
 
 use Dekode\InsightlyCli\Services\DekodemonService;
-use Dekode\InsightlyCli\Services\NetService;
-use Dekode\InsightlyCli\Services\ServerService;
+use Dekode\RemoteServers\Services\NetService;
+use Dekode\RemoteServers\Services\ServerService;
 use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Exception\ClientException;
 use Dekode\Insightly\InsightlyService;
 use Dekode\Insightly\Models\Project;
 
 class Guess extends Command {
-
-	private $servers;
 
 	/**
 	 * Returns the string used to run this command.
@@ -53,6 +51,10 @@ class Guess extends Command {
 		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->net_service       = new NetService();
 		$this->server_service    = new ServerService();
+
+		$this->server_service->set_digital_ocean_api_key( DIGITAL_OCEAN_API_KEY );
+		$this->server_service->set_rackspace_api_key( RACKSPACE_API_KEY );
+		$this->server_service->set_rackspace_username( RACKSPACE_USERNAME );
 
 		$arguments = $this->get_arguments();
 

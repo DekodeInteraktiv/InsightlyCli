@@ -1,6 +1,6 @@
 <?php
 
-define( 'APP_VERSION', '2.2.1' );
+define( 'APP_VERSION', '2.3' );
 
 require( 'vendor/autoload.php' );
 require( 'config.php' );
@@ -8,9 +8,7 @@ require( __DIR__ . '/includes/class-core.php' );
 
 // Services
 require( __DIR__ . '/includes/services/class-operating-system-service.php' );
-require( __DIR__ . '/includes/services/class-net-service.php' );
 require( __DIR__ . '/includes/services/class-dekodemon-service.php' );
-require( __DIR__ . '/includes/services/class-server-service.php' );
 
 // Operating systems
 require( __DIR__ . '/includes/operating-systems/class-operating-system.php' );
