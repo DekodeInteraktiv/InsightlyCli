@@ -10,6 +10,14 @@
  
 You can now access the script from anywhere through the command `isc`. 
 
+## Updating
+    git pull
+    cd app
+    composer install
+    cd ..
+    sudo ./build
+    
+
 ## Commands
 To get information on available commands, run `isc help`.
 

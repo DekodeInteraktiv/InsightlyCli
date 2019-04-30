@@ -7,5 +7,5 @@ fi
 
 php build.php
 chmod +x ./insightly-cli.phar
-mv insightly-cli.phar /usr/bin/isc
+mv insightly-cli.phar /usr/local/bin/isc
 rm insightly-cli.phar.gz
