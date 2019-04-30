@@ -83,8 +83,7 @@ class Guess extends Command {
 
 			$project = $this->get_most_similar_project_or_die( $site );
 
-			$this->dekodemon_service = new DekodemonService();
-			$this->dekodemon_service->set_project( $project );
+			$this->dekodemon_service = new DekodemonService( $this->convert_to_ssh_server( $project ) );
 
 			$original_project = clone $project;
 
@@ -115,7 +114,7 @@ class Guess extends Command {
 
 			$server = $this->server_service->guess_production_server( $ip );
 
-			if ( $server['status'] == 0 ) {
+			if ( $server['status'] == ServerService::STATUS_NOT_ABLE_TO_FIND_SERVER ) {
 				$provider = $this->net_service->guess_provider_by_ip( $ip );
 
 				if ( $provider ) {
@@ -124,7 +123,7 @@ class Guess extends Command {
 				} else {
 					$this->climate->red( 'Not able to guess server. Reason: "' . $server['message'] . '"' );
 				}
-			} else {
+			} elseif ( $server['status'] == ServerService::STATUS_SERVER_FOUND ) {
 				$server = $server['server'];
 				$this->climate->green()->inline( 'Guessing that server is located at ' );
 				$this->climate->cyan( $server->get_provider_name() . ' / ' . $server->get_name() );
@@ -169,7 +168,7 @@ class Guess extends Command {
 				$this->climate->green()->inline( 'Guessing SSH command: ' . $guessed_ssh_command . '...' );
 				$project->set_ssh_to_prod( $guessed_ssh_command );
 				try {
-					@$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+					@$ssh_service = new SSHService( $this->convert_to_ssh_server( $project ) );
 					$this->climate->lightGreen( 'success' );
 					$ssh_failed = false;
 				} catch ( \Exception $e ) {
@@ -301,6 +300,10 @@ class Guess extends Command {
 	 * @return array|null
 	 */
 	private function guess_prod_url( Project $project ) {
+		if ( $project->get_prod_url() ) {
+			return $project->get_prod_url();
+		}
+
 		$urls = [ $project->get_prod_url(), 'https://' . $project->get_name() ];
 
 		foreach ( $urls as $url ) {

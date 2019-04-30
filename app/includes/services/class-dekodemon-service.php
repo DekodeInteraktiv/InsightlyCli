@@ -3,6 +3,7 @@
 namespace Dekode\InsightlyCli\Services;
 
 use Dekode\Insightly\Models\Project;
+use Dekode\RemoteServers\Models\SSHServer;
 use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -20,6 +21,10 @@ class DekodemonService {
 	const NO = 2;
 	const CANNOT_DETERMINE = 3;
 
+	public function __construct( SSHServer $project ) {
+		$this->set_project( $project );
+	}
+
 
 	/**
 	 * Tries to SSH to server and find out if dekodemon plugin in installed.
@@ -30,7 +35,7 @@ class DekodemonService {
 	public function plugin_is_installed() {
 
 		try {
-			@$ssh_service = new SSHService( $this->get_project()->convert_to_ssh_server() );
+			@$ssh_service = new SSHService( $this->get_project() );
 		} catch ( Exception $e ) {
 			return $this::CANNOT_DETERMINE;
 		}
@@ -55,7 +60,7 @@ class DekodemonService {
 	public function plugin_is_activated() {
 		$client = new Client();
 		try {
-			$res = $client->request( 'GET', $this->get_project()->get_prod_url() . '/dekodemon-rest/report/plugins_report' );
+			$res = $client->request( 'GET', $this->get_project()->get_production_url() . '/dekodemon-rest/report/plugins_report' );
 		} catch ( ClientException $e ) {
 
 			$res = $e->getResponse();
@@ -72,14 +77,14 @@ class DekodemonService {
 	/**
 	 * @return mixed
 	 */
-	public function get_project(): Project {
+	public function get_project(): SSHServer {
 		return $this->project;
 	}
 
 	/**
-	 * @param mixed $project
+	 * @param  mixed $project
 	 */
-	public function set_project( Project $project ): void {
+	public function set_project( SSHServer $project ): void {
 		$this->project = $project;
 	}
 
