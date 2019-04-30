@@ -8,17 +8,17 @@
     "packages": [
         {
             "name": "dekode/insightly-service",
-            "version": "1.1.2",
+            "version": "1.3",
             "source": {
                 "type": "git",
                 "url": "git@github.com:DekodeInteraktiv/insightly-service.git",
-                "reference": "874e217c989ce60274a171c18a67ca6610faec28"
+                "reference": "d5ad5516e93c0ff92425780fa135094aa10b0a68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.dekodes.no/dist/dekode/insightly-service/dekode-insightly-service-874e217c989ce60274a171c18a67ca6610faec28-zip-3fa120.zip",
-                "reference": "874e217c989ce60274a171c18a67ca6610faec28",
-                "shasum": "e858c7e246bf22b51c51148d56110e67ee75dc3d"
+                "url": "https://composer.dekodes.no/dist/dekode/insightly-service/dekode-insightly-service-d5ad5516e93c0ff92425780fa135094aa10b0a68-zip-9ff88a.zip",
+                "reference": "d5ad5516e93c0ff92425780fa135094aa10b0a68",
+                "shasum": "92abe059ff325337de2bf54d0bbb70692c35976e"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3"
@@ -40,24 +40,24 @@
             ],
             "description": "A wrapper to communicate with the Insightly API.",
             "support": {
-                "source": "https://github.com/DekodeInteraktiv/insightly-service/tree/1.1.2",
+                "source": "https://github.com/DekodeInteraktiv/insightly-service/tree/1.3",
                 "issues": "https://github.com/DekodeInteraktiv/insightly-service/issues"
             },
-            "time": "2019-04-26T11:17:02+00:00"
+            "time": "2019-04-30T10:27:30+00:00"
         },
         {
             "name": "dekode/remote-servers",
-            "version": "1.2.1",
+            "version": "1.3",
             "source": {
                 "type": "git",
                 "url": "git@github.com:DekodeInteraktiv/remote-servers.git",
-                "reference": "83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9"
+                "reference": "cc603f8bfb201d7fc34c124af3eabf1f85438878"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9-zip-0da35d.zip",
-                "reference": "83b1a31e226dbe80ec4f003bbf4ccf151d0c52a9",
-                "shasum": "47f7d377fe44dfb8ff1ae9384356d87cd39ed4db"
+                "url": "https://composer.dekodes.no/dist/dekode/remote-servers/dekode-remote-servers-cc603f8bfb201d7fc34c124af3eabf1f85438878-zip-357594.zip",
+                "reference": "cc603f8bfb201d7fc34c124af3eabf1f85438878",
+                "shasum": "22ec55e5c0c49607c6523acbe007feae10350cdf"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -81,10 +81,10 @@
             ],
             "description": "A service which lets you talk to the APIs of our server providers and a library of tools to interact with the servers through SSH.",
             "support": {
-                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.2.1",
+                "source": "https://github.com/DekodeInteraktiv/remote-servers/tree/1.3",
                 "issues": "https://github.com/DekodeInteraktiv/remote-servers/issues"
             },
-            "time": "2019-04-29T10:27:25+00:00"
+            "time": "2019-04-30T10:29:06+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

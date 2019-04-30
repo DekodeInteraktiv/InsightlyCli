@@ -34,10 +34,7 @@ class Update extends Command {
 		$help = "Usage:\n";
 		$help .= "isc update <name of project> --ssh-to-prod=\"ssh root@somedomain\" <other flags>\n\n";
 		$help .= "Flags:\n";
-		$help .= "prod-server\tUpdates the name of the production server (eg. prod06, ServeBolt etc)" . "\n";
-		$help .= "prod-url\tUpdates the URL for the production server." . "\n";
 		$help .= "ssh-to-prod\tUpdates the field \"SSH to prod\"" . "\n";
-		$help .= "stage-url\tUpdates the URL for the stage server." . "\n";
 		$help .= "web-root\tUpdates the web root of this project." . "\n";
 
 		return $help;
@@ -73,27 +70,6 @@ class Update extends Command {
 			if ( $this->confirm( $project->get_ssh_to_prod(), $arguments['ssh-to-prod'], 'SSH to prod' ) ) {
 				$fields_to_update = true;
 				$project->set_ssh_to_prod( $arguments['ssh-to-prod'] );
-			};
-		}
-
-		if ( isset( $arguments['prod-url'] ) ) {
-			if ( $this->confirm( $project->get_prod_url(), $arguments['prod-url'], 'The URL to the production site' ) ) {
-				$fields_to_update = true;
-				$project->set_prod_url( $arguments['prod-url'] );
-			};
-		}
-
-		if ( isset( $arguments['stage-url'] ) ) {
-			if ( $this->confirm( $project->get_stage_url(), $arguments['stage-url'], 'The URL to the stage site' ) ) {
-				$fields_to_update = true;
-				$project->set_stage_url( $arguments['stage-url'] );
-			};
-		}
-
-		if ( isset( $arguments['prod-server'] ) ) {
-			if ( $this->confirm( $project->get_prod_server(), $arguments['prod-server'], 'The name of the production server' ) ) {
-				$fields_to_update = true;
-				$project->set_prod_server( $arguments['prod-server'] );
 			};
 		}
 

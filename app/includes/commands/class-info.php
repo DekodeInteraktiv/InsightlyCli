@@ -70,15 +70,8 @@ class Info extends Command {
 		$climate->green( "DB instance:\t\t" . $project->get_db_instance() . "\n" );
 
 
-		$climate->red( "Prod URL:\t\t" . $project->get_prod_url() );
-		$climate->red( "Stage URL:\t\t" . $project->get_stage_url() );
-
-		if ( count( $project->get_related_domains() ) ) {
-			$climate->red( "Related domains:" );
-			$related_domains = $project->get_related_domains();
-			sort( $related_domains );
-			$climate->white( '   ' . join( "\n   ", $related_domains ) );
-		}
+		$climate->red( "Prod URLs:\t\t" . join( ', ', $project->get_prod_urls() ) );
+		$climate->red( "Stage URL:\t\t" . join( ', ', $project->get_stage_urls() ) );
 
 		echo "\n";
 

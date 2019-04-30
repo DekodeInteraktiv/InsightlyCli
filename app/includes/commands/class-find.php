@@ -55,10 +55,15 @@ class Find extends Command {
 		for ( $i = 0; $i < 10; $i ++ ) {
 			$climate->yellow()->inline( $projects[ $i ]['project']->get_name() );
 
-			if ( $projects[ $i ]['match_found_in_key'] == InsightlyService::SEARCH_KEY_RELATED_DOMAIN )  {
-				$climate->lightGreen( ' (Related domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
-			} else {
-				echo "\n";
+			switch ($projects[ $i ]['match_found_in_key']) {
+				case InsightlyService::SEARCH_KEY_PRODUCTION_DOMAIN:
+					$climate->lightGreen( ' (Production domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
+					break;
+				case InsightlyService::SEARCH_KEY_STAGE_DOMAIN:
+					$climate->lightGreen( ' (Stage domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
+					break;
+				default:
+					echo "\n";
 			}
 
 

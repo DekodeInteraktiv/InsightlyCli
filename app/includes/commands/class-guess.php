@@ -97,7 +97,7 @@ class Guess extends Command {
 
 			}
 
-			$project->set_prod_url( $prod_url );
+			$project->set_prod_urls( [ $prod_url ] );
 			$this->climate->green()->inline( 'Guessing that prod URL is: ' );
 			$this->climate->cyan( $prod_url );
 

@@ -2,6 +2,7 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
+use Dekode\Insightly\InsightlyService;
 use Dekode\InsightlyCli\Services\DekodemonService;
 use Dekode\RemoteServers\Services\SSHService;
 
@@ -58,8 +59,7 @@ class DekodemonSanityCheck extends Command {
 		$results            = [];
 
 		foreach ( $projects as $project ) {
-			$dekodemon_service = new DekodemonService();
-			$dekodemon_service->set_project( $project );
+			$dekodemon_service = new DekodemonService( $this->convert_to_ssh_server( $project ) );
 
 			$this->climate->green()->inline( '(' . ++ $i . ' / ' . $number_of_projects . ') Working with ' . $project->get_name() . '...' );
 
@@ -79,7 +79,7 @@ class DekodemonSanityCheck extends Command {
 
 				}
 
-				$ssh_service = new SSHService( $project->convert_to_ssh_server() );
+				$ssh_service  = new SSHService( $this->convert_to_ssh_server( $project ) );
 				$is_multisite = $ssh_service->is_multisite();
 
 				if ( $is_multisite ) {
