@@ -6,7 +6,7 @@
 4. If you want to use every aspect of the `guess` command, you need the other APIs as well.
 
 ## Building
-From the root folder of the projeect:
+From the root folder of the project:
 
     sudo ./build.sh
  
