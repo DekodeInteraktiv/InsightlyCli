@@ -62,6 +62,9 @@ class Find extends Command {
 				case InsightlyService::SEARCH_KEY_STAGE_DOMAIN:
 					$climate->lightGreen( ' (Stage domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
 					break;
+				case InsightlyService::SEARCH_KEY_EMAIL_ADDRESS:
+					$climate->lightGreen( ' (Email address: ' . $projects[ $i ]['match_found_in_string'] . ')' );
+					break;
 				default:
 					echo "\n";
 			}
