@@ -47,8 +47,6 @@ class DekodemonActivate extends Command {
 	public function run() {
 		$this->climate = $this->get_climate();
 
-		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-
 		$arguments = $this->get_arguments();
 		if ( array_key_exists( 'all', $arguments ) ) {
 			$input    = $this->climate->red()->input( 'WARNING: This will reset the dekodemon secret strings for ALL sites. Enter "yes" if you are sure:' );

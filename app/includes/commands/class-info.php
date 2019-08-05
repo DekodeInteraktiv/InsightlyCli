@@ -2,8 +2,6 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\Insightly\InsightlyService;
-
 class Info extends Command {
 
 	/**
@@ -43,8 +41,6 @@ class Info extends Command {
 	 */
 	public function run() {
 		$climate = $this->get_climate();
-
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 
 		if ( ! isset( $this->get_arguments()[2] ) ) {
 			$climate->error( 'No project specified.' );

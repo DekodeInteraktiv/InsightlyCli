@@ -43,9 +43,8 @@ class ClearCache extends Command {
 		$climate = $this->get_climate();
 		$climate->yellow( 'Rebuilding cache. This could take some time.' );
 
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$insightly_service->clear_cache();
-		$insightly_service->get_projects();
+		$this->insightly_service->clear_cache();
+		$this->insightly_service->projects()->get_projects();
 
 		$climate->success( 'Cache rebuilt.' );
 

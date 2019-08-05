@@ -40,10 +40,9 @@ class SanityCheck extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$climate           = $this->get_climate();
 
-		$projects = $insightly_service->get_projects();
+		$projects = $this->insightly_service->projects()->get_projects();
 
 		foreach ( $projects as $project ) {
 			if ( ! $project->get_ssh_to_prod() ) {

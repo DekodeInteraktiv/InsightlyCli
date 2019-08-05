@@ -8,8 +8,6 @@ use Dekode\RemoteServers\Services\SSHService;
 
 class DekodemonSanityCheck extends Command {
 
-	private $insightly_service;
-
 	/**
 	 * Returns the string used to run this command.
 	 *

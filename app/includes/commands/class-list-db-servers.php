@@ -41,8 +41,7 @@ class ListDbServers extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-		$projects          = $insightly_service->get_projects();
+		$projects          = $this->insightly_service->projects()->get_projects();
 
 		usort( $projects, function ( $a, $b ) {
 			return strcmp( strtolower( $a->get_name() ), strtolower( $b->get_name() ) );

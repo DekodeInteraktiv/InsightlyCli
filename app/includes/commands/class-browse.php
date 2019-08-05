@@ -2,7 +2,6 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\Insightly\InsightlyService;
 use Dekode\InsightlyCli\Services\OperatingSystemService;
 
 class Browse extends Command {
@@ -42,7 +41,6 @@ class Browse extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$climate           = $this->get_climate();
 		$os                = OperatingSystemService::get_current_os();
 

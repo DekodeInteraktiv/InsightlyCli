@@ -2,11 +2,14 @@
 
 namespace Dekode\InsightlyCli\Commands;
 
-use Dekode\Insightly\InsightlyService;
 use Dekode\RemoteServers\Services\SSHService;
 
 
 class DumpDB extends Command {
+
+	public function __construct() {
+		parent::__construct();
+	}
 
 	/**
 	 * Returns the string used to run this command.
@@ -50,9 +53,6 @@ class DumpDB extends Command {
 	 */
 	public function run() {
 		$this->climate = $this->get_climate();
-
-		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-
 
 		$arguments = $this->get_arguments();
 

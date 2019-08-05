@@ -42,27 +42,25 @@ class Find extends Command {
 	public function run() {
 		$climate = $this->get_climate();
 
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-
 		if ( ! isset( $this->get_arguments()[2] ) ) {
 			$climate->error( 'No search string specified.' );
 			exit;
 		}
 
-		$projects = $insightly_service->get_projects_by_search_string( $this->get_arguments()[2] );
+		$projects = $this->insightly_service->projects()->get_projects_by_search_string( $this->get_arguments()[2] );
 
 		$climate->green( 'Found these projects:' );
 		for ( $i = 0; $i < 10; $i ++ ) {
 			$climate->yellow()->inline( $projects[ $i ]['project']->get_name() );
 
 			switch ($projects[ $i ]['match_found_in_key']) {
-				case InsightlyService::SEARCH_KEY_PRODUCTION_DOMAIN:
+				case $this->insightly_service->projects()::SEARCH_KEY_PRODUCTION_DOMAIN:
 					$climate->lightGreen( ' (Production domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
 					break;
-				case InsightlyService::SEARCH_KEY_STAGE_DOMAIN:
+				case $this->insightly_service->projects()::SEARCH_KEY_STAGE_DOMAIN:
 					$climate->lightGreen( ' (Stage domain: ' . $projects[ $i ]['match_found_in_string'] . ')' );
 					break;
-				case InsightlyService::SEARCH_KEY_EMAIL_ADDRESS:
+				case $this->insightly_service->projects()::SEARCH_KEY_EMAIL_ADDRESS:
 					$climate->lightGreen( ' (Email address: ' . $projects[ $i ]['match_found_in_string'] . ')' );
 					break;
 				default:

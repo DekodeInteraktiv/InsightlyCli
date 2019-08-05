@@ -41,7 +41,6 @@ class AccessDb extends Command {
 	 * Executes this command
 	 */
 	public function run() {
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$climate           = $this->get_climate();
 
 		$project = $this->get_most_similar_project_or_die( $this->get_arguments()[2] );

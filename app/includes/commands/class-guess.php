@@ -7,7 +7,6 @@ use Dekode\RemoteServers\Services\NetService;
 use Dekode\RemoteServers\Services\ServerService;
 use Dekode\RemoteServers\Services\SSHService;
 use GuzzleHttp\Exception\ClientException;
-use Dekode\Insightly\InsightlyService;
 use Dekode\Insightly\Models\Project;
 
 class Guess extends Command {
@@ -48,7 +47,6 @@ class Guess extends Command {
 	public function run() {
 		$this->climate = $this->get_climate();
 
-		$this->insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
 		$this->net_service       = new NetService();
 		$this->server_service    = new ServerService();
 
@@ -131,14 +129,20 @@ class Guess extends Command {
 
 			$this->climate->green()->inline( 'Dekode monitoring tool endpoint is ' );
 
-			$dekodemon_is_active = $this->dekodemon_service->plugin_is_activated();
+			try {
 
-			if ( $dekodemon_is_active == DekodemonService::YES ) {
-				$check_for_dekodemon_installed = false;
-				$this->climate->lightGreen( 'active' );
-			} elseif ( $dekodemon_is_active == DekodemonService::NO ) {
-				$check_for_dekodemon_installed = true;
-				$this->climate->red( 'not active' );
+				$dekodemon_is_active = $this->dekodemon_service->plugin_is_activated();
+
+				if ( $dekodemon_is_active == DekodemonService::YES ) {
+					$check_for_dekodemon_installed = false;
+					$this->climate->lightGreen( 'active' );
+				} elseif ( $dekodemon_is_active == DekodemonService::NO ) {
+					$check_for_dekodemon_installed = true;
+					$this->climate->red( 'not active' );
+
+				}
+			} catch (\Exception $e) {
+				$this->climate->red( 'error occured when checking: ' . $e->getMessage() );
 
 			}
 
@@ -283,8 +287,8 @@ class Guess extends Command {
 				if ( strtolower( $response ) == 'y' ) {
 					$this->climate->green( 'Saving...' );
 					$original_project->set_web_root( $web_root );
-					$this->insightly_service->save_project( $original_project );
-					$this->insightly_service->get_projects();
+					$this->insightly_service->projects()->save_project( $original_project );
+					$this->insightly_service->projects()->get_projects();
 				}
 
 			}

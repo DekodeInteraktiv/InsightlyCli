@@ -46,10 +46,8 @@ class Update extends Command {
 	 */
 	public function run() {
 		$climate           = $this->get_climate();
-		$insightly_service = new InsightlyService( INSIGHTLY_API_KEY );
-
 		if ( isset( $this->get_arguments()[2] ) ) {
-			$project = $insightly_service->get_project_by_name( $this->get_arguments()[2] );
+			$project = $this->insightly_service->projects()->get_project_by_name( $this->get_arguments()[2] );
 		} else {
 			$climate->error( 'No project specified.' );
 			exit;
@@ -86,9 +84,9 @@ class Update extends Command {
 			exit;
 		}
 
-		$insightly_service->save_project( $project );
-		$insightly_service->clear_cache();
-		$insightly_service->get_projects();
+		$this->insightly_service->projects()->save_project( $project );
+		$this->insightly_service->projects()->clear_cache();
+		$this->insightly_service->projects()->get_projects();
 		$climate->green( 'Project updated.' );
 	}
 
