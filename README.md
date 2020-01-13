@@ -17,7 +17,7 @@ You can now access the script from anywhere through the command `isc`.
     cd app
     composer install
     cd ..
-    sudo ./build
+    sudo ./build.sh
     
 
 ## Commands
