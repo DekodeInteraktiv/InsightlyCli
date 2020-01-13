@@ -18,6 +18,7 @@ You can now access the script from anywhere through the command `isc`.
     composer install
     cd ..
     sudo ./build.sh
+    isc rebuild-cache
     
 
 ## Commands
