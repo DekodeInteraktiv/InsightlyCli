@@ -10,6 +10,10 @@ From the root folder of the project:
 
     sudo ./build.sh
  
+Or as a Windows user, run the following and follow the end-stage instruction:
+
+    build.bat
+
 You can now access the script from anywhere through the command `isc`. 
 
 ## Updating
